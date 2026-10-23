@@ -3,7 +3,7 @@ name: fabrique-sistema
 description: >-
   Fábrica agêntica de software em 4 etapas (concepção, especificação, construção,
   revisão). Use quando o usuário pedir para construir um sistema a partir de um
-  pedido em linguagem natural, PEDIDO.md, PEDIDO-TREINO.md, ou com o prompt da
+  pedido em linguagem natural, pedidos/*.md, ou com o prompt da
   banca: skills disponíveis → sistema em gerado/ com critérios de aceite.
 ---
 
@@ -15,11 +15,12 @@ Leva um pedido em linguagem natural até um sistema funcionando em `gerado/`, co
 
 ## Entrada
 
-1. **Detectar pedido:** se existir `PEDIDO.md` na raiz, usar só ele; senão `PEDIDO-TREINO.md`; senão texto colado pelo usuário.
+1. **Detectar pedido:** arquivo indicado pelo usuário em `pedidos/`; senão `pedidos/PEDIDO-TREINO.md`; senão texto colado.
 2. **Destino:** todo código e docs do sistema em `gerado/` (não na raiz do hackathon).
-3. **Execução completa:** quando o prompt pedir construir o sistema, executar as 4 etapas em sequência **sem pedir confirmação** entre etapas.
-4. **Ambiguidade:** escolher a opção mais simples; registrar premissa em `gerado/docs/PRD.md` (seção Premissas).
-5. **Stack padrão** (se o pedido não fixar): Python 3.11+, FastAPI, SQLite, pytest, HTML estático servido pelo FastAPI.
+3. **Troca de pedido:** em execução completa de outro `pedidos/*.md`, **substituir** o sistema anterior em `gerado/` (app, testes, UI, PRD/SPEC do domínio, bancos locais `*.db`) — não misturar com o pedido anterior. Pode manter `.venv/`, `_deps/`, Docker se ainda servirem.
+4. **Execução completa:** quando o prompt pedir construir o sistema, executar as 4 etapas em sequência **sem pedir confirmação** entre etapas.
+5. **Ambiguidade:** escolher a opção mais simples; registrar premissa em `gerado/docs/PRD.md` (seção Premissas).
+6. **Stack padrão** (se o pedido não fixar): Python 3.11+, FastAPI, SQLite, pytest, HTML estático servido pelo FastAPI.
 
 ## Pipeline obrigatório (nessa ordem)
 
@@ -78,7 +79,7 @@ Ao final de uma execução completa, garantir/atualizar:
 
 | Arquivo | Conteúdo |
 |---|---|
-| `evidencias/execucao.md` | agente, modelo, prompt de entrada, resumo do que foi feito |
+| `evidencias/execucao.md` | agente, modelo, prompt de entrada, etapas e artefatos gerados |
 | `evidencias/log-resumido.md` | log curto da execução (comandos, testes, resultado) |
 | `evidencias/criterios-aceite.md` | tabela CA-xx → passou/falhou + observação |
 | `evidencias/erros-ia.md` | erros da IA nesta execução (ver regra do projeto) |
@@ -95,7 +96,7 @@ Sempre que identificar um erro próprio (requisito errado, bug, teste falho por 
 
 Treinar para funcionar sem intervenção com:
 
-> Usando as skills disponíveis, construa o sistema descrito em PEDIDO.md dentro da pasta gerado/. Siga todas as etapas das skills até o sistema rodar e os critérios de aceite serem verificados.
+> Usando as skills disponíveis, construa o sistema descrito em pedidos/PEDIDO.md dentro da pasta gerado/. Siga todas as etapas das skills até o sistema rodar e os critérios de aceite serem verificados.
 
 Resposta esperada do agente: executar as 4 etapas, deixar o sistema rodável em `gerado/`, testes verdes (ou falhas documentadas), evidências preenchidas.
 

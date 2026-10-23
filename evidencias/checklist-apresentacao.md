@@ -1,6 +1,6 @@
 # Checklist formal — apresentação × repositório
 
-Gate final antes do envio (segunda 09h). Marque cada item.
+Conformidade com o kit do desafio (prazo de entrega: segunda 09h).
 
 ## Escopo obrigatório (passa / não passa)
 
@@ -10,7 +10,7 @@ Gate final antes do envio (segunda 09h). Marque cada item.
 | O2 | Quatro etapas: concepção, especificação, construção, revisão | PRD/SPEC em `gerado/docs/` + skill |
 | O3 | Sistema gerado a partir do pedido de treino | `gerado/` |
 | O4 | `evidencias/` com agente, modelo, prompt, log | `evidencias/execucao.md`, `log-resumido.md` |
-| O5 | README com 5 blocos (problema, fez, reproduzir, evidências, erros IA) | `README.md` |
+| O5 | README com 5 blocos (problema, solução, reproduzir, evidências, erros IA) | `README.md` |
 | O6 | Execução completa no treino com critérios verificados | `evidencias/criterios-aceite.md` |
 | O7 | Prompt da banca funciona sem intervenção | README + skill |
 
@@ -45,8 +45,8 @@ Gate final antes do envio (segunda 09h). Marque cada item.
 |---|---|
 | Fábrica de skills | `skills/fabrique-sistema/` |
 | 4 etapas | `gerado/docs/PRD.md`, `SPEC.md`, código, revisão/testes |
-| Pedido treino | `PEDIDO-TREINO.md` → sistema em `gerado/` |
-| Pedido oculto (finalistas) | Skill lê `PEDIDO.md` com mesmo fluxo |
+| Pedido treino | `pedidos/PEDIDO-TREINO.md` → sistema em `gerado/` |
+| Outro pedido | `pedidos/PEDIDO.md` (ou novo arquivo em `pedidos/`) |
 | Evidências | `evidencias/*` |
 | Onde a IA errou | `evidencias/erros-ia.md` + README §05 |
-| Prazo segunda 9h | Entrega no repo `ideen-tech/hackathon-2026-d2-[usuário]` |
+| Prazo segunda 9h | Entrega em [leonardodias-wq/hackathon-2026-d2](https://github.com/leonardodias-wq/hackathon-2026-d2) |

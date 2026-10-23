@@ -1,1 +1,1 @@
-Usando as skills disponíveis, construa o sistema descrito em PEDIDO.md dentro da pasta gerado/. Siga todas as etapas das skills até o sistema rodar e os critérios de aceite serem verificados.
+Obsoleto: use ./scripts/usar-agente.sh cursor PEDIDO.md (ou outro pedido em pedidos/).

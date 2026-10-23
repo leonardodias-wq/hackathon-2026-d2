@@ -1,72 +1,58 @@
-import json
+import os
 from pathlib import Path
 
 try:
-    from pysqlite3 import dbapi2 as sqlite3
-except ImportError:
-    import sqlite3  # type: ignore
+    import pysqlite3 as sqlite3  # type: ignore
+except ImportError:  # pragma: no cover
+    import sqlite3
 
-import os
+DEFAULT_DB = Path(__file__).resolve().parent.parent / "horas.db"
 
-_default = Path(__file__).resolve().parent.parent / "reservas.db"
+SEED_PROJETOS = [
+    ("Portal Cliente", "Acme Corp", "#1B6B4A"),
+    ("App Mobile", "Beta Indústria", "#C45C26"),
+    ("Infra Interna", "Ideen", "#2C4A6E"),
+]
 
 
 def db_path() -> Path:
-    return Path(os.environ.get("RESERVAS_DB", str(_default)))
-
-LOCALS = ("SAO_PAULO", "ARARAQUARA", "COWORKING")
-RECURSOS = ("TV", "VIDEOCONFERENCIA", "QUADRO")
+    env = os.environ.get("HORAS_DB")
+    return Path(env) if env else DEFAULT_DB
 
 
 def get_connection() -> sqlite3.Connection:
-    conn = sqlite3.connect(db_path(), check_same_thread=False)
+    conn = sqlite3.connect(str(db_path()))
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys = ON")
     return conn
 
 
 def init_db(conn: sqlite3.Connection) -> None:
     conn.executescript(
         """
-        CREATE TABLE IF NOT EXISTS salas (
+        CREATE TABLE IF NOT EXISTS projetos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT NOT NULL,
-            local TEXT NOT NULL,
-            capacidade INTEGER NOT NULL,
-            recursos TEXT NOT NULL
+            cliente TEXT NOT NULL,
+            cor TEXT NOT NULL
         );
-        CREATE TABLE IF NOT EXISTS reservas (
+
+        CREATE TABLE IF NOT EXISTS lancamentos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            sala_id INTEGER NOT NULL,
-            responsavel_nome TEXT NOT NULL,
-            responsavel_email TEXT NOT NULL,
-            titulo TEXT NOT NULL,
-            participantes INTEGER NOT NULL,
+            projeto_id INTEGER NOT NULL REFERENCES projetos(id),
+            colaborador_nome TEXT NOT NULL,
+            colaborador_email TEXT NOT NULL,
+            descricao TEXT NOT NULL,
             inicio TEXT NOT NULL,
-            fim TEXT NOT NULL,
-            status TEXT NOT NULL,
-            FOREIGN KEY (sala_id) REFERENCES salas(id)
+            fim TEXT,
+            status TEXT NOT NULL CHECK (status IN ('FINALIZADO', 'EM_ANDAMENTO'))
         );
         """
     )
-    count = conn.execute("SELECT COUNT(*) FROM salas").fetchone()[0]
+    count = conn.execute("SELECT COUNT(*) FROM projetos").fetchone()[0]
     if count == 0:
-        seed_salas(conn)
+        conn.executemany(
+            "INSERT INTO projetos (nome, cliente, cor) VALUES (?, ?, ?)",
+            SEED_PROJETOS,
+        )
     conn.commit()
-
-
-def seed_salas(conn: sqlite3.Connection) -> None:
-    salas = []
-    for local in LOCALS:
-        for i in (1, 2):
-            salas.append(
-                (
-                    f"Sala {local} {i}",
-                    local,
-                    10 if i == 1 else 6,
-                    json.dumps(["TV", "QUADRO"]),
-                )
-            )
-    conn.executemany(
-        "INSERT INTO salas (nome, local, capacidade, recursos) VALUES (?, ?, ?, ?)",
-        salas,
-    )

@@ -1,5 +1,1 @@
-Siga integralmente o arquivo prompts/INSTRUCOES-UNIVERSAIS.md deste repositório.
-
-Construa o sistema do pedido de treino (PEDIDO-TREINO.md) dentro de gerado/, execute as 4 etapas, rode os testes de aceite e preencha evidencias/.
-
-Não pare entre etapas. Registre em evidencias/erros-ia.md qualquer erro seu antes de corrigir.
+Obsoleto: use ./scripts/usar-agente.sh <agente> <pedido.md> e copie o bloco "primeira mensagem".

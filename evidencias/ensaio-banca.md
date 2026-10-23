@@ -17,8 +17,8 @@ Simulação: avaliador clona o repo, segue apenas o README raiz e `gerado/README
 |---|---|
 | Python 3.14 sem `_sqlite3` no ambiente WSL | `pysqlite3-binary` em `requirements.txt` + import em `app/database.py` |
 | `python3 -m venv` falhou (sem python3-venv no sistema) | Documentado `pip install --target ./_deps` no log |
-| Espelho skill em `.cursor/skills/` | README explica copiar ou usar pasta do projeto |
+| Espelho skill em `.cursor/skills/` | README §03 descreve instalação da skill no Cursor |
 
 ## Resultado do ensaio
 
-**Aprovado** para reprodução técnica: testes verdes, CA mapeados, pastas obrigatórias presentes.
+Reprodução técnica concluída: testes verdes, CA mapeados, pastas obrigatórias presentes.

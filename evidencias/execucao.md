@@ -8,19 +8,23 @@ Cursor Agent (Composer)
 
 Composer (sessão hackathon 2026-10-23)
 
-## Prompt de entrada (treino)
+## Prompt de entrada
 
-> Usando as skills disponíveis, construa o sistema descrito em PEDIDO-TREINO.md dentro da pasta gerado/. Siga todas as etapas das skills até o sistema rodar e os critérios de aceite serem verificados.
+> Usando as skills disponíveis, construa o sistema descrito em pedidos/PEDIDO.md dentro da pasta gerado/. Siga todas as etapas das skills até o sistema rodar e os critérios de aceite serem verificados.
 
-## Resumo
+## Pedido
+
+`pedidos/PEDIDO.md` — Controle de horas (projetos, lançamentos, cronômetro, relatório CSV).
+
+## Pipeline executado
 
 1. **Concepção:** `gerado/docs/PRD.md`
 2. **Especificação:** `gerado/docs/SPEC.md`
-3. **Construção:** API FastAPI + SQLite (`pysqlite3-binary` quando necessário) + UI em `gerado/static/index.html`
-4. **Revisão:** `pytest` com 10 testes de aceite; todos passando
+3. **Construção:** API FastAPI + SQLite (`HORAS_DB`, `pysqlite3-binary`) + UI `gerado/static/` (skill `interface-agradavel`)
+4. **Revisão:** `pytest` — 10 testes de aceite verdes; smoke do servidor em `:8000`
 
 ## Artefatos
 
-- Pacote: `skills/fabrique-sistema/SKILL.md`
+- Skills: `fabrique-sistema`, `interface-agradavel`
 - Sistema: `gerado/`
 - Critérios: `evidencias/criterios-aceite.md`

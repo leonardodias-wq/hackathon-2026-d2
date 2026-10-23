@@ -4,59 +4,35 @@ Pacote de skills que leva um agente de um pedido em linguagem natural até um si
 
 ## 01 · O problema
 
-Dupla reserva de salas em planilha compartilhada — precisamos de um fluxo repetível (skills) que gere um sistema simples de reservas sem conflito.
+Reservas de salas em planilha compartilhada geram conflito de horário. O desafio exige um pacote de skills repetível que produza um sistema local de reservas sem sobreposição.
 
-## 02 · O que você fez
+## 02 · Solução
 
-- **Pacote:** [`skills/fabrique-sistema/SKILL.md`](skills/fabrique-sistema/SKILL.md) — orquestra concepção, especificação, construção e revisão.
-- **Espelho Cursor:** [`.cursor/skills/fabrique-sistema/`](.cursor/skills/fabrique-sistema/) (mesmo conteúdo).
-- **Regra de erros:** [`.cursor/rules/erros-ia.mdc`](.cursor/rules/erros-ia.mdc) — registra falhas da IA em tempo real.
-- **Treino:** sistema gerado em [`gerado/`](gerado/) a partir de [`PEDIDO-TREINO.md`](PEDIDO-TREINO.md) (API REST + UI + SQLite).
-- **Checklist apresentação:** [`evidencias/checklist-apresentacao.md`](evidencias/checklist-apresentacao.md).
-- **Entrega base confirmada:** [`evidencias/entrega-base-confirmada.md`](evidencias/entrega-base-confirmada.md) (testes verdes antes do bônus).
-- **Bônus · segurança:** skill [`skills/revisao-seguranca/`](skills/revisao-seguranca/) + [`evidencias/auditoria-seguranca-resumo.md`](evidencias/auditoria-seguranca-resumo.md).
-- **UI · antislop:** skill [`skills/interface-agradavel/`](skills/interface-agradavel/) — interface agradável na construção (evita visual genérico de IA).
+- **Pacote:** [`skills/fabrique-sistema/SKILL.md`](skills/fabrique-sistema/SKILL.md) — concepção, especificação, construção e revisão.
+- **Treino:** [`pedidos/PEDIDO-TREINO.md`](pedidos/PEDIDO-TREINO.md) → sistema em [`gerado/`](gerado/) (API REST, UI, SQLite, CA-01..CA-10).
+- **Bônus:** [`revisao-seguranca`](skills/revisao-seguranca/SKILL.md), [`interface-agradavel`](skills/interface-agradavel/SKILL.md).
 
 ## 03 · Como reproduzir
 
-### 1. Clonar e abrir no Cursor
+Clonar [github.com/leonardodias-wq/hackathon-2026-d2](https://github.com/leonardodias-wq/hackathon-2026-d2).
 
-Repositório alvo: `ideen-tech/hackathon-2026-d2-[seu-usuário]`.
-
-### 2. Instalar a skill (Cursor) ou instruções universais (outros)
-
-- **Cursor:** skill em `.cursor/skills/fabrique-sistema/` (ou copie `skills/fabrique-sistema` para `.cursor/skills/`).
-- **ChatGPT / Claude / Gemini / Copilot / chat genérico:** [`skills/PORTABILIDADE.md`](skills/PORTABILIDADE.md) e [`prompts/INSTRUCOES-UNIVERSAIS.md`](prompts/INSTRUCOES-UNIVERSAIS.md).  
-  Um único bloco para colar: gere com `./scripts/montar-prompt.sh` → [`prompts/PROMPT-COMPLETO.md`](prompts/PROMPT-COMPLETO.md).
-
-### 3. Rodar a fábrica (prompt da banca)
-
-```text
-Usando as skills disponíveis, construa o sistema descrito em PEDIDO-TREINO.md dentro da pasta gerado/. Siga todas as etapas das skills até o sistema rodar e os critérios de aceite serem verificados.
-```
-
-(Para desempate de finalistas, troque por `PEDIDO.md`.)
-
-### 4. Validar o sistema gerado
+**Um comando por agente** — passos curtos e blocos prontos para copiar:
 
 ```bash
-cd gerado
-python3 -m pip install -r requirements.txt
-# Se venv não estiver disponível: python3 -m pip install --target ./_deps -r requirements.txt
-PYTHONPATH=. python3 -m pytest -q
-# ou: PYTHONPATH=_deps:. python3 -m pytest -q
+./scripts/usar-agente.sh                          # lista agentes e pedidos em pedidos/
+./scripts/usar-agente.sh claude PEDIDO-TREINO.md
+./scripts/usar-agente.sh colar PEDIDO.md
 ```
 
-Servidor local:
+- **Cursor:** skill em `.cursor/skills/fabrique-sistema/`; o script imprime o prompt.
+- **Sem arquivos no chat:** use `colar` (equivale a `montar-prompt.sh` + texto único).
+- **Detalhes:** [`skills/PORTABILIDADE.md`](skills/PORTABILIDADE.md) · mapa [`prompts/agentes.json`](prompts/agentes.json)
 
-```bash
-cd gerado
-uvicorn app.main:app --host 127.0.0.1 --port 8000
-```
+Requer agente com terminal para `pytest` e `evidencias/`.
 
-Detalhes: [`gerado/README.md`](gerado/README.md).
+### Validar
 
-**Opção Docker (opcional):** na pasta `gerado/`, `docker compose up --build app` e `docker compose run --rm tests`.
+[`gerado/README.md`](gerado/README.md) — testes, servidor e Docker.
 
 ## 04 · Evidências
 
@@ -75,5 +51,6 @@ Detalhes: [`gerado/README.md`](gerado/README.md).
 - **E-001:** Python sem `_sqlite3` quebrou testes → `pysqlite3-binary` + import em `database.py`.
 - **E-002:** DB de teste não isolado / path cacheado → `db_path()` dinâmico + `conftest` com `init_db`.
 - **E-003:** XSS na agenda (`innerHTML`) → DOM API + `textContent` após auditoria.
+- **E-004:** Typo `parse:dt` no handler de lançamentos → corrigido para `parse_dt` antes do pytest.
 
 Detalhes em [`evidencias/erros-ia.md`](evidencias/erros-ia.md).

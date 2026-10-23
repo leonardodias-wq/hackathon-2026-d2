@@ -1,41 +1,38 @@
 # Portabilidade · usar a fábrica em qualquer agente
 
-O formato `SKILL.md` é nativo do **Cursor**. Para outros ambientes, use os artefatos em `prompts/` — são a **mesma lógica**, sem depender de `/skill`.
+O formato `SKILL.md` é nativo do **Cursor**. Nos outros ambientes, a mesma lógica está em `prompts/`.
 
-## Escolha rápida
+## Entrada rápida
 
-| Ambiente | O que fazer |
+Pedidos ficam em [`pedidos/`](../pedidos/). Na raiz do repositório:
+
+```bash
+./scripts/usar-agente.sh                          # lista agentes + arquivos em pedidos/
+./scripts/usar-agente.sh chatgpt PEDIDO-TREINO.md # passos + blocos ──── COPIAR ────
+./scripts/usar-agente.sh colar PEDIDO.md            # um único bloco (chat com terminal)
+```
+
+| Ambiente | Exemplo |
 |---|---|
-| **Cursor** | Skill em `.cursor/skills/fabrique-sistema` → `/fabrique-sistema` + prompt em `prompts/mensagem-banca.txt` |
-| **ChatGPT** | Project → colar `prompts/INSTRUCOES-UNIVERSAIS.md` nas instruções; anexar repo; enviar `prompts/mensagem-usuario-iniciar.txt` |
-| **Claude** | Project knowledge: `INSTRUCOES-UNIVERSAIS.md` + `skills/fabrique-sistema/SKILL.md` + pedido; mesma mensagem inicial |
-| **Gemini** | Contexto do chat / Gem com `INSTRUCOES-UNIVERSAIS.md` + repo |
-| **Copilot (VS Code)** | Abrir este repo; no chat referenciar `@workspace` e `prompts/INSTRUCOES-UNIVERSAIS.md` |
-| **Qualquer chat sem arquivos** | Rode `./scripts/montar-prompt.sh` e cole `prompts/PROMPT-COMPLETO.md` |
+| Cursor | `./scripts/usar-agente.sh cursor PEDIDO-TREINO.md` |
+| ChatGPT | `./scripts/usar-agente.sh chatgpt PEDIDO-TREINO.md` |
+| Claude | `./scripts/usar-agente.sh claude PEDIDO-TREINO.md` |
+| Gemini | `./scripts/usar-agente.sh gemini PEDIDO-TREINO.md` |
+| Copilot | `./scripts/usar-agente.sh copilot PEDIDO-TREINO.md` |
+| Colar tudo | `./scripts/usar-agente.sh colar PEDIDO-TREINO.md` |
 
-Mapa machine-readable: [`prompts/agentes.json`](../prompts/agentes.json).
-
-## Dois pedidos (apresentação)
-
-| Arquivo | Uso |
-|---|---|
-| `PEDIDO-TREINO.md` | Calibrar pacote + evidências no hackathon |
-| `PEDIDO.md` | Pedido oculto da banca (finalistas) — mesma skill, mesmo fluxo |
-
-A detecção automática está nas instruções universais e na skill `fabrique-sistema`.
+Mapa machine-readable: [`prompts/agentes.json`](../prompts/agentes.json).  
+Só o prompt grande: `./scripts/montar-prompt.sh PEDIDO-TREINO.md` → `prompts/PROMPT-COMPLETO.md`.
 
 ## Reaproveitabilidade (critério da banca)
 
-Outra pessoa deve conseguir:
-
 1. Clonar o repo.
-2. Seguir [`README.md`](../README.md) § Como reproduzir **ou** esta tabela.
-3. Obter sistema em `gerado/` + testes + `evidencias/` equivalentes.
+2. `./scripts/usar-agente.sh <agente> PEDIDO-TREINO.md` ou seguir [`README.md`](../README.md) §03.
+3. Obter sistema em `gerado/` + testes + `evidencias/`.
 
-**Limitação honesta:** modelos só-chat (sem terminal) não executam `pytest`; o pacote ainda especifica o processo, mas a prova exige agente com execução local (Cursor, Claude Code, Codex, etc.).
+**Limitação honesta:** modelos só-chat (sem terminal) não executam `pytest`; a prova exige agente com execução local.
 
 ## Manter sincronizado
 
-- Regra de negócio nova → atualizar `skills/fabrique-sistema/SKILL.md` **e** `prompts/INSTRUCOES-UNIVERSAIS.md` (ou regerar PROMPT-COMPLETO).
-- Bônus segurança → `skills/revisao-seguranca/SKILL.md` (opcional após etapa 04).
-- UI agradável / antislop → `skills/interface-agradavel/SKILL.md` (etapa 03, junto com a construção).
+- Regra nova → `skills/fabrique-sistema/SKILL.md` **e** `prompts/INSTRUCOES-UNIVERSAIS.md` (ou regerar PROMPT-COMPLETO).
+- Novo pedido → adicionar `pedidos/<nome>.md` e rodar o script com esse nome.

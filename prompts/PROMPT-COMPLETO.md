@@ -1,6 +1,6 @@
 # Prompt completo · Fábrica Ideen (gerado automaticamente)
 
-_Não edite manualmente; regenere com: `./scripts/montar-prompt.sh [PEDIDO.md]`_
+_Não edite manualmente; regenere com: `./scripts/montar-prompt.sh PEDIDO-TREINO.md`_
 
 # Instruções universais · Fábrica Ideen (qualquer agente)
 
@@ -16,9 +16,9 @@ Você é uma **fábrica de software agêntica**. Sua missão: ler um pedido em l
 
 ## Detectar o pedido (ordem)
 
-1. Se existir `PEDIDO.md` na raiz do repositório → usar **só** esse (cenário banca / finalistas).
-2. Senão, se existir `PEDIDO-TREINO.md` → usar para treino e evidências.
-3. Senão → usar o texto que o usuário colar no chat.
+1. Se o usuário indicar um arquivo → usar `pedidos/<nome>.md`.
+2. Senão → `pedidos/PEDIDO-TREINO.md` (padrão do hackathon).
+3. Senão → texto colado no chat.
 
 ## Estrutura fixa do repositório
 
@@ -27,6 +27,7 @@ Você é uma **fábrica de software agêntica**. Sua missão: ler um pedido em l
 | `gerado/` | Sistema produzido (código, docs, testes) |
 | `evidencias/` | Execução, critérios de aceite, erros da IA |
 | `skills/` | Definição formal das skills (espelho das instruções) |
+| `pedidos/` | Pedidos em linguagem natural (`PEDIDO-TREINO.md`, `PEDIDO.md`, …) |
 
 Não coloque o app na raiz; tudo gerado vai em `gerado/`.
 
@@ -62,7 +63,7 @@ Modelo de dados, API REST, regras de negócio testáveis, UI, plano de testes po
 
 ## Evidências (ao terminar execução completa)
 
-- `evidencias/execucao.md` — agente, modelo, prompt, resumo.
+- `evidencias/execucao.md` — agente, modelo, prompt, etapas e artefatos.
 - `evidencias/log-resumido.md` — comandos e resultados.
 - `evidencias/criterios-aceite.md` — CA-xx passou/falhou.
 - `evidencias/erros-ia.md` — erros honestos (formato E-NNN).
@@ -72,10 +73,10 @@ Atualizar README raiz §05 quando registrar erro.
 ## Prompt oficial da banca (treinar para isto)
 
 ```text
-Usando as skills disponíveis, construa o sistema descrito em PEDIDO.md dentro da pasta gerado/. Siga todas as etapas das skills até o sistema rodar e os critérios de aceite serem verificados.
+Usando as skills disponíveis, construa o sistema descrito em pedidos/<ARQUIVO>.md dentro da pasta gerado/. Siga todas as etapas das skills até o sistema rodar e os critérios de aceite serem verificados.
 ```
 
-(Treino: troque `PEDIDO.md` por `PEDIDO-TREINO.md`.)
+(Substitua `<ARQUIVO>` pelo pedido escolhido, ex.: `PEDIDO-TREINO.md`.)
 
 ## Execução
 
@@ -83,17 +84,17 @@ Usando as skills disponíveis, construa o sistema descrito em PEDIDO.md dentro d
 - Ambiguidade → opção mais simples + registrar em PRD (Premissas).
 - Proibido: deploy obrigatório, dados reais, segredos, pular PRD/SPEC/testes.
 
-## Mensagem sugerida do usuário (copiar após anexar o repo)
+## Mensagem sugerida do usuário
 
-Ver `prompts/mensagem-usuario-iniciar.txt`.
+Gerar com: `./scripts/usar-agente.sh <agente> <pedido.md>` (bloco **primeira mensagem**).
 
 ---
 
-## Pedido anexado
+## Pedido anexado (`pedidos/PEDIDO-TREINO.md`)
 
 # Pedido de treino · Reserva de salas
 
-> Use este pedido para construir e calibrar o seu pacote de skills. Rode o pacote nele, de ponta a ponta, e guarde as evidências.
+> Pedido oficial de calibração do pacote de skills: executar o fluxo completo de ponta a ponta e registrar evidências em `evidencias/`.
 > A banca usará um **pedido oculto** do mesmo tamanho e do mesmo tipo de entrega para desempatar os finalistas.
 
 ## O pedido, como o cliente escreveu
@@ -147,8 +148,8 @@ Ver `prompts/mensagem-usuario-iniciar.txt`.
 
 ## Mensagem final do usuário
 
-Siga integralmente o arquivo prompts/INSTRUCOES-UNIVERSAIS.md deste repositório.
+Siga integralmente prompts/INSTRUCOES-UNIVERSAIS.md deste repositório.
 
-Construa o sistema do pedido de treino (PEDIDO-TREINO.md) dentro de gerado/, execute as 4 etapas, rode os testes de aceite e preencha evidencias/.
+Usando as skills disponíveis, construa o sistema descrito em pedidos/PEDIDO-TREINO.md dentro da pasta gerado/. Siga todas as etapas das skills até o sistema rodar e os critérios de aceite serem verificados.
 
 Não pare entre etapas. Registre em evidencias/erros-ia.md qualquer erro seu antes de corrigir.

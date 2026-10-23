@@ -1,6 +1,6 @@
 # Pedido de treino · Reserva de salas
 
-> Use este pedido para construir e calibrar o seu pacote de skills. Rode o pacote nele, de ponta a ponta, e guarde as evidências.
+> Pedido oficial de calibração do pacote de skills: executar o fluxo completo de ponta a ponta e registrar evidências em `evidencias/`.
 > A banca usará um **pedido oculto** do mesmo tamanho e do mesmo tipo de entrega para desempatar os finalistas.
 
 ## O pedido, como o cliente escreveu

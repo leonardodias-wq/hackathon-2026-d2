@@ -1,4 +1,4 @@
-# Confirmação da entrega base (antes do bônus)
+# Baseline da entrega obrigatória (pré-bônus)
 
 **Data:** 2026-10-23  
 **Escopo:** obrigatório do Desafio 2 — sem skill de auditoria PDF.
@@ -23,7 +23,7 @@ Ver [`criterios-aceite.md`](criterios-aceite.md): **CA-01 a CA-10 = PASS**.
 | `gerado/docs/PRD.md`, `SPEC.md` | OK |
 | `evidencias/execucao.md`, `log-resumido.md` | OK |
 | `README.md` (5 seções) | OK |
-| `PEDIDO-TREINO.md` | OK |
+| `pedidos/PEDIDO-TREINO.md` | OK |
 
 ## Bônus (fora deste snapshot)
 

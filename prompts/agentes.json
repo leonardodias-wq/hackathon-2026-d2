@@ -1,8 +1,10 @@
 {
-  "version": 1,
+  "version": 2,
   "descricao": "Mapa de como carregar a fábrica em cada ambiente. Fonte da verdade das regras: skills/fabrique-sistema/SKILL.md",
-  "pedido": {
-    "prioridade": ["PEDIDO.md", "PEDIDO-TREINO.md", "texto_do_usuario"]
+  "entrada_rapida": "scripts/usar-agente.sh <agente> <pedido.md>",
+  "pedidos": {
+    "pasta": "pedidos/",
+    "exemplos": ["PEDIDO-TREINO.md", "PEDIDO.md"]
   },
   "agentes": {
     "cursor": {
@@ -15,7 +17,6 @@
       "tipo": "project_instructions",
       "arquivo": "prompts/INSTRUCOES-UNIVERSAIS.md",
       "anexar_repo": true,
-      "primeira_mensagem": "prompts/mensagem-usuario-iniciar.txt",
       "nota": "Use GPT com Code Interpreter / workspace com arquivos se precisar rodar pytest."
     },
     "claude": {
@@ -23,14 +24,12 @@
       "arquivos": [
         "prompts/INSTRUCOES-UNIVERSAIS.md",
         "skills/fabrique-sistema/SKILL.md",
-        "PEDIDO-TREINO.md"
-      ],
-      "primeira_mensagem": "prompts/mensagem-usuario-iniciar.txt"
+        "pedidos/PEDIDO-TREINO.md"
+      ]
     },
     "gemini": {
       "tipo": "system_context",
-      "arquivo": "prompts/INSTRUCOES-UNIVERSAIS.md",
-      "primeira_mensagem": "prompts/mensagem-usuario-iniciar.txt"
+      "arquivo": "prompts/INSTRUCOES-UNIVERSAIS.md"
     },
     "github_copilot": {
       "tipo": "chat_context",
@@ -40,7 +39,7 @@
     "generico": {
       "tipo": "colar_no_chat",
       "arquivo": "prompts/PROMPT-COMPLETO.md",
-      "gerado_por": "scripts/montar-prompt.sh"
+      "gerado_por": "scripts/montar-prompt.sh <pedido.md>"
     }
   },
   "bonus": {

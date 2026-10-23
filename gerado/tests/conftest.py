@@ -13,7 +13,7 @@ from app.main import app
 def client() -> TestClient:
     fd, path = tempfile.mkstemp(suffix=".db")
     os.close(fd)
-    os.environ["RESERVAS_DB"] = path
+    os.environ["HORAS_DB"] = path
     if Path(path).exists():
         Path(path).unlink()
     conn = get_connection()
@@ -22,3 +22,10 @@ def client() -> TestClient:
     with TestClient(app) as test_client:
         yield test_client
     Path(path).unlink(missing_ok=True)
+
+
+@pytest.fixture
+def projeto_id(client: TestClient) -> int:
+    projetos = client.get("/api/projetos").json()
+    assert len(projetos) >= 1
+    return projetos[0]["id"]

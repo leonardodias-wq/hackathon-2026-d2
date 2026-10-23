@@ -24,3 +24,10 @@ Log append-only. A regra do projeto (`.cursor/rules/erros-ia.mdc`) manda registr
 - **Causa:** UI mínima gerada sem considerar escape de HTML em dados do usuário.
 - **Correção:** `gerado/static/index.html` reescrito com `createElement` + `textContent`; README de segurança em `gerado/README.md`.
 - **Melhoria no processo:** skill `revisao-seguranca` já cobre categoria 5; fabrique-sistema poderia citar “sem innerHTML em dados da API”.
+
+### E-004 · 2026-10-23 19:00
+- **Etapa:** construção
+- **Sintoma:** typo `parse:dt` em `create_lancamento` (código inválido) ao gerar `main.py` do controle de horas.
+- **Causa:** erro de digitação ao escrever o handler; não revisado antes de salvar o arquivo.
+- **Correção:** substituído por `parse_dt(body.fim)` antes de rodar testes.
+- **Melhoria no processo:** pendente — checagem rápida de sintaxe (`python -m compileall app`) antes do pytest.

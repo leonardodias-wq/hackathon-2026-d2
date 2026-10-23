@@ -1,180 +1,208 @@
-from datetime import datetime, timedelta
+"""Critérios de aceite CA-01 .. CA-10 — controle de horas."""
 
-FUTURE_DAY = datetime(2030, 6, 15, 10, 0, 0)
+from datetime import date
+
+from tests.helpers import backdate_em_andamento, past_slot
+
+EMAIL = "ana@empresa.com"
+NOME = "Ana Silva"
 
 
-def iso(dt: datetime) -> str:
-    return dt.isoformat()
+def _payload(projeto_id: int, inicio: str, fim: str, desc: str = "Atividade") -> dict:
+    return {
+        "projeto_id": projeto_id,
+        "colaborador_nome": NOME,
+        "colaborador_email": EMAIL,
+        "descricao": desc,
+        "inicio": inicio,
+        "fim": fim,
+    }
 
 
-def reserva_payload(client, sala_id: int, start: datetime, duration_min: int = 60, participantes: int = 4):
-    end = start + timedelta(minutes=duration_min)
-    return client.post(
-        "/api/reservas",
+def test_ca01_lancamento_finalizado_valido(client, projeto_id):
+    inicio, fim = past_slot(hours_ago=2, duration_hours=1)
+    res = client.post("/api/lancamentos", json=_payload(projeto_id, inicio, fim))
+    assert res.status_code == 201
+    data = res.json()
+    assert data["status"] == "FINALIZADO"
+    assert data["duracao_minutos"] == 60
+
+
+def test_ca02_fim_antes_ou_igual_inicio(client, projeto_id):
+    inicio, _ = past_slot(hours_ago=2, duration_hours=1)
+    res = client.post(
+        "/api/lancamentos",
+        json=_payload(projeto_id, inicio, inicio),
+    )
+    assert 400 <= res.status_code < 500
+
+    earlier = past_slot(hours_ago=3, duration_hours=1)
+    res2 = client.post(
+        "/api/lancamentos",
+        json=_payload(projeto_id, earlier[1], earlier[0]),  # fim < início
+    )
+    assert 400 <= res2.status_code < 500
+
+
+def test_ca03_sobreposicao_finalizados(client, projeto_id):
+    inicio, fim = past_slot(hours_ago=5, duration_hours=2)
+    assert client.post("/api/lancamentos", json=_payload(projeto_id, inicio, fim)).status_code == 201
+
+    # overlap: começa no meio do primeiro
+    from datetime import datetime, timedelta
+
+    mid = datetime.fromisoformat(inicio) + timedelta(hours=1)
+    fim2 = mid + timedelta(hours=1)
+    res = client.post(
+        "/api/lancamentos",
+        json=_payload(projeto_id, mid.isoformat(timespec="seconds"), fim2.isoformat(timespec="seconds")),
+    )
+    assert res.status_code == 409
+    assert "conflito" in res.json()["detail"].lower()
+
+
+def test_ca04_encostados_aceitados(client, projeto_id):
+    from datetime import datetime, timedelta
+
+    base = datetime.now().replace(microsecond=0) - timedelta(days=1)
+    # 10h–11h e 11h–12h no dia anterior
+    d = base.replace(hour=10, minute=0, second=0)
+    a0, a1 = d, d + timedelta(hours=1)
+    b0, b1 = a1, a1 + timedelta(hours=1)
+    r1 = client.post(
+        "/api/lancamentos",
+        json=_payload(projeto_id, a0.isoformat(timespec="seconds"), a1.isoformat(timespec="seconds"), "Bloco A"),
+    )
+    r2 = client.post(
+        "/api/lancamentos",
+        json=_payload(projeto_id, b0.isoformat(timespec="seconds"), b1.isoformat(timespec="seconds"), "Bloco B"),
+    )
+    assert r1.status_code == 201
+    assert r2.status_code == 201
+
+
+def test_ca05_iniciar_cronometro(client, projeto_id):
+    res = client.post(
+        "/api/cronometro/iniciar",
         json={
-            "sala_id": sala_id,
-            "responsavel_nome": "Ana",
-            "responsavel_email": "ana@example.com",
-            "titulo": "Reunião",
-            "participantes": participantes,
-            "inicio": iso(start),
-            "fim": iso(end),
+            "projeto_id": projeto_id,
+            "colaborador_nome": NOME,
+            "colaborador_email": EMAIL,
+            "descricao": "Foco",
         },
     )
+    assert res.status_code == 201
+    data = res.json()
+    assert data["status"] == "EM_ANDAMENTO"
+    assert data["fim"] is None
 
 
-def test_ca01_reserva_valida(client):
-    r = reserva_payload(client, 1, FUTURE_DAY)
-    assert r.status_code == 201
-    assert r.json()["status"] == "ATIVA"
+def test_ca06_segundo_cronometro_mesmo_email(client, projeto_id):
+    body = {
+        "projeto_id": projeto_id,
+        "colaborador_nome": NOME,
+        "colaborador_email": EMAIL,
+        "descricao": "Um",
+    }
+    assert client.post("/api/cronometro/iniciar", json=body).status_code == 201
+    res = client.post(
+        "/api/cronometro/iniciar",
+        json={**body, "descricao": "Dois"},
+    )
+    assert res.status_code == 409
 
 
-def test_ca02_conflito_sobreposicao(client):
-    base = FUTURE_DAY + timedelta(hours=2)
-    assert reserva_payload(client, 1, base).status_code == 201
-    overlap = client.post(
-        "/api/reservas",
+def test_ca07_parar_cronometro(client, projeto_id):
+    assert (
+        client.post(
+            "/api/cronometro/iniciar",
+            json={
+                "projeto_id": projeto_id,
+                "colaborador_nome": NOME,
+                "colaborador_email": EMAIL,
+                "descricao": "Sessão",
+            },
+        ).status_code
+        == 201
+    )
+    backdate_em_andamento(EMAIL, minutes_ago=5)
+    res = client.post("/api/cronometro/parar", json={"email": EMAIL})
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "FINALIZADO"
+    assert data["fim"] is not None
+    assert data["duracao_minutos"] >= 1
+
+
+def test_ca08_relatorio_totais_projeto(client, projeto_id):
+    inicio, fim = past_slot(hours_ago=4, duration_hours=2)
+    client.post("/api/lancamentos", json=_payload(projeto_id, inicio, fim, "A"))
+    # EM_ANDAMENTO não deve entrar
+    client.post(
+        "/api/cronometro/iniciar",
         json={
-            "sala_id": 1,
-            "responsavel_nome": "Bia",
-            "responsavel_email": "bia@example.com",
-            "titulo": "Conflito",
-            "participantes": 2,
-            "inicio": iso(base + timedelta(minutes=30)),
-            "fim": iso(base + timedelta(minutes=90)),
+            "projeto_id": projeto_id,
+            "colaborador_nome": NOME,
+            "colaborador_email": "outro@empresa.com",
+            "descricao": "Aberto",
         },
     )
-    assert overlap.status_code == 409
-    assert "conflito" in overlap.json()["detail"].lower()
+    dia = date.fromisoformat(inicio[:10])
+    res = client.get(
+        f"/api/relatorio?data_inicio={dia.isoformat()}&data_fim={dia.isoformat()}"
+    )
+    assert res.status_code == 200
+    data = res.json()
+    por = {p["projeto_id"]: p["total_minutos"] for p in data["por_projeto"]}
+    assert por[projeto_id] == 120
 
 
-def test_ca03_horarios_encostados(client):
-    sala = 2
-    first = FUTURE_DAY + timedelta(hours=4)
-    assert reserva_payload(client, sala, first, 60).status_code == 201
-    second_start = first + timedelta(hours=1)
-    r = reserva_payload(client, sala, second_start, 60)
-    assert r.status_code == 201
-    assert r.json()["status"] == "ATIVA"
-
-
-def test_ca04_duracao_invalida(client):
-    base = FUTURE_DAY + timedelta(hours=6)
-    short = client.post(
-        "/api/reservas",
+def test_ca09_export_csv(client, projeto_id):
+    inicio, fim = past_slot(hours_ago=6, duration_hours=1)
+    client.post("/api/lancamentos", json=_payload(projeto_id, inicio, fim))
+    client.post(
+        "/api/cronometro/iniciar",
         json={
-            "sala_id": 3,
-            "responsavel_nome": "C",
-            "responsavel_email": "c@example.com",
-            "titulo": "Curta",
-            "participantes": 2,
-            "inicio": iso(base),
-            "fim": iso(base + timedelta(minutes=10)),
+            "projeto_id": projeto_id,
+            "colaborador_nome": NOME,
+            "colaborador_email": "csv-open@empresa.com",
+            "descricao": "Não vai ao CSV",
         },
     )
-    long = client.post(
-        "/api/reservas",
-        json={
-            "sala_id": 3,
-            "responsavel_nome": "D",
-            "responsavel_email": "d@example.com",
-            "titulo": "Longa",
-            "participantes": 2,
-            "inicio": iso(base + timedelta(hours=1)),
-            "fim": iso(base + timedelta(hours=1, minutes=241)),
-        },
-    )
-    assert short.status_code == 400
-    assert long.status_code == 400
+    dia = inicio[:10]
+    res = client.get(f"/api/relatorio/csv?data_inicio={dia}&data_fim={dia}")
+    assert res.status_code == 200
+    assert "text/csv" in res.headers["content-type"]
+    text = res.text
+    header = text.splitlines()[0]
+    cols = [
+        "projeto",
+        "cliente",
+        "colaborador",
+        "email",
+        "descricao",
+        "inicio",
+        "fim",
+        "duracao_minutos",
+        "status",
+    ]
+    assert header == ",".join(cols)
+    assert "EM_ANDAMENTO" not in text
+    assert "FINALIZADO" in text
+    assert "Não vai ao CSV" not in text
 
 
-def test_ca05_inicio_passado(client):
-    past = datetime.utcnow() - timedelta(hours=2)
-    r = reserva_payload(client, 4, past, 60)
-    assert r.status_code == 400
-
-
-def test_ca06_capacidade(client):
-    salas = client.get("/api/salas").json()
-    sala_pequena = next(s for s in salas if s["capacidade"] == 6)
-    r = reserva_payload(client, sala_pequena["id"], FUTURE_DAY + timedelta(hours=8), 60, participantes=99)
-    assert r.status_code == 400
-
-
-def test_ca07_cancelar_futura(client):
-    start = FUTURE_DAY + timedelta(hours=10)
-    created = reserva_payload(client, 5, start, 60)
-    rid = created.json()["id"]
-    cancel = client.post(f"/api/reservas/{rid}/cancelar")
-    assert cancel.status_code == 200
-    assert cancel.json()["status"] == "CANCELADA"
-    # horário liberado
-    again = reserva_payload(client, 5, start, 60)
+def test_ca10_excluir_em_andamento(client, projeto_id):
+    body = {
+        "projeto_id": projeto_id,
+        "colaborador_nome": NOME,
+        "colaborador_email": EMAIL,
+        "descricao": "Abortar",
+    }
+    created = client.post("/api/cronometro/iniciar", json=body).json()
+    res = client.delete(f"/api/lancamentos/{created['id']}")
+    assert res.status_code == 204
+    # Novo cronômetro deve funcionar
+    again = client.post("/api/cronometro/iniciar", json={**body, "descricao": "De novo"})
     assert again.status_code == 201
-
-
-def test_ca08_cancelar_passada(client):
-    start = datetime.utcnow() + timedelta(minutes=30)
-    end = datetime.utcnow() + timedelta(minutes=90)
-    r = client.post(
-        "/api/reservas",
-        json={
-            "sala_id": 6,
-            "responsavel_nome": "F",
-            "responsavel_email": "f@example.com",
-            "titulo": "Futura curta",
-            "participantes": 2,
-            "inicio": iso(start),
-            "fim": iso(end),
-        },
-    )
-    assert r.status_code == 201
-    rid = r.json()["id"]
-    from app.database import get_connection
-
-    conn = get_connection()
-    past_end = (datetime.utcnow() - timedelta(minutes=5)).isoformat()
-    past_start = (datetime.utcnow() - timedelta(hours=1)).isoformat()
-    conn.execute(
-        "UPDATE reservas SET inicio = ?, fim = ? WHERE id = ?",
-        (past_start, past_end, rid),
-    )
-    conn.commit()
-    conn.close()
-    cancel = client.post(f"/api/reservas/{rid}/cancelar")
-    assert cancel.status_code == 400
-
-
-def test_ca09_salas_livres_filtro(client):
-    sala_id = 1
-    block_start = FUTURE_DAY + timedelta(days=1, hours=9)
-    assert reserva_payload(client, sala_id, block_start, 120).status_code == 201
-    ini = block_start - timedelta(minutes=30)
-    end = block_start + timedelta(hours=3)
-    livres = client.get(
-        "/api/salas/livres",
-        params={
-            "inicio": iso(ini),
-            "fim": iso(end),
-            "local": "SAO_PAULO",
-            "capacidade_min": 8,
-        },
-    )
-    assert livres.status_code == 200
-    ids = {s["id"] for s in livres.json()}
-    assert sala_id not in ids
-    assert all(s["local"] == "SAO_PAULO" and s["capacidade"] >= 8 for s in livres.json())
-
-
-def test_ca10_relatorio_ocupacao(client):
-    day = "2030-06-16"
-    start = datetime(2030, 6, 16, 9, 0, 0)
-    assert reserva_payload(client, 1, start, 60).status_code == 201
-    created = reserva_payload(client, 2, start + timedelta(hours=2), 60)
-    rid_cancel = created.json()["id"]
-    client.post(f"/api/reservas/{rid_cancel}/cancelar")
-    rep = client.get("/api/relatorios/ocupacao", params={"data": day})
-    assert rep.status_code == 200
-    by_sala = {r["sala_id"]: r for r in rep.json()}
-    assert by_sala[1]["minutos_ocupados"] == 60
-    assert by_sala[2]["minutos_ocupados"] == 0
+    assert again.json()["status"] == "EM_ANDAMENTO"

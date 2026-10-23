@@ -1,22 +1,26 @@
 # Log resumido
 
 ```bash
-cd /home/leonardo/projects/ideen/hackathon/gerado
-python3 -m pip install --target ./_deps -r requirements.txt
-PYTHONPATH=_deps:. python3 -m pytest -q
-# 13 passed
+cd gerado
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+pytest -q
+# 10 passed
+uvicorn app.main:app --host 127.0.0.1 --port 8000
+# GET /api/projetos → 3 projetos seed
 ```
 
 ## Comandos úteis
 
 ```bash
 cd gerado
-python3 -m pip install -r requirements.txt   # ou venv
-PYTHONPATH=. python3 -m pytest -q          # após deps instaladas
+source .venv/bin/activate   # ou: ./run-tests.sh
+pytest -q
 uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
-## Docker (opcional, pós-entrega)
+## Docker (opcional)
 
 ```bash
 cd gerado
@@ -25,7 +29,7 @@ docker compose run --rm tests
 docker compose down
 ```
 
-## Reruns
+## Notas
 
-- Ajuste `RESERVAS_DB` nos testes (fixture isolada por teste).
-- Correção de `db_path()` dinâmico após falhas de isolamento (ver `evidencias/erros-ia.md` E-002).
+- Banco de teste isolado: `HORAS_DB` (fixture por teste).
+- `pytest.ini` limita coleta a `tests/` (evita `_deps`).

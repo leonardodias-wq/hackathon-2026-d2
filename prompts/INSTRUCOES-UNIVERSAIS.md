@@ -12,9 +12,9 @@ Você é uma **fábrica de software agêntica**. Sua missão: ler um pedido em l
 
 ## Detectar o pedido (ordem)
 
-1. Se existir `PEDIDO.md` na raiz do repositório → usar **só** esse (cenário banca / finalistas).
-2. Senão, se existir `PEDIDO-TREINO.md` → usar para treino e evidências.
-3. Senão → usar o texto que o usuário colar no chat.
+1. Se o usuário indicar um arquivo → usar `pedidos/<nome>.md`.
+2. Senão → `pedidos/PEDIDO-TREINO.md` (padrão do hackathon).
+3. Senão → texto colado no chat.
 
 ## Estrutura fixa do repositório
 
@@ -23,6 +23,7 @@ Você é uma **fábrica de software agêntica**. Sua missão: ler um pedido em l
 | `gerado/` | Sistema produzido (código, docs, testes) |
 | `evidencias/` | Execução, critérios de aceite, erros da IA |
 | `skills/` | Definição formal das skills (espelho das instruções) |
+| `pedidos/` | Pedidos em linguagem natural (`PEDIDO-TREINO.md`, `PEDIDO.md`, …) |
 
 Não coloque o app na raiz; tudo gerado vai em `gerado/`.
 
@@ -58,7 +59,7 @@ Modelo de dados, API REST, regras de negócio testáveis, UI, plano de testes po
 
 ## Evidências (ao terminar execução completa)
 
-- `evidencias/execucao.md` — agente, modelo, prompt, resumo.
+- `evidencias/execucao.md` — agente, modelo, prompt, etapas e artefatos.
 - `evidencias/log-resumido.md` — comandos e resultados.
 - `evidencias/criterios-aceite.md` — CA-xx passou/falhou.
 - `evidencias/erros-ia.md` — erros honestos (formato E-NNN).
@@ -68,17 +69,18 @@ Atualizar README raiz §05 quando registrar erro.
 ## Prompt oficial da banca (treinar para isto)
 
 ```text
-Usando as skills disponíveis, construa o sistema descrito em PEDIDO.md dentro da pasta gerado/. Siga todas as etapas das skills até o sistema rodar e os critérios de aceite serem verificados.
+Usando as skills disponíveis, construa o sistema descrito em pedidos/<ARQUIVO>.md dentro da pasta gerado/. Siga todas as etapas das skills até o sistema rodar e os critérios de aceite serem verificados.
 ```
 
-(Treino: troque `PEDIDO.md` por `PEDIDO-TREINO.md`.)
+(Substitua `<ARQUIVO>` pelo pedido escolhido, ex.: `PEDIDO-TREINO.md`.)
 
 ## Execução
 
+- Outro pedido em `pedidos/` → **substituir** o sistema em `gerado/` por completo (não misturar com o projeto anterior).
 - Pedido de execução completa → **não pedir confirmação** entre etapas.
 - Ambiguidade → opção mais simples + registrar em PRD (Premissas).
 - Proibido: deploy obrigatório, dados reais, segredos, pular PRD/SPEC/testes.
 
-## Mensagem sugerida do usuário (copiar após anexar o repo)
+## Mensagem sugerida do usuário
 
-Ver `prompts/mensagem-usuario-iniciar.txt`.
+Gerar com: `./scripts/usar-agente.sh <agente> <pedido.md>` (bloco **primeira mensagem**).

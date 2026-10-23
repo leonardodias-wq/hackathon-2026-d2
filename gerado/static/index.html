@@ -1,102 +1,119 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <title>Reserva de salas</title>
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
-    section { margin-bottom: 2rem; }
-    label { display: block; margin-top: 0.5rem; }
-    input, select, button { margin-top: 0.25rem; padding: 0.4rem; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ccc; padding: 0.4rem; text-align: left; }
-  </style>
-</head>
-<body>
-  <h1>Reserva de salas</h1>
-  <section>
-    <h2>Nova reserva</h2>
-    <form id="form-reserva">
-      <label>Sala <select id="sala_id" required></select></label>
-      <label>Título <input id="titulo" required /></label>
-      <label>Responsável <input id="responsavel_nome" required /></label>
-      <label>E-mail <input id="responsavel_email" type="email" required /></label>
-      <label>Participantes <input id="participantes" type="number" min="1" required /></label>
-      <label>Início <input id="inicio" type="datetime-local" required /></label>
-      <label>Fim <input id="fim" type="datetime-local" required /></label>
-      <button type="submit">Reservar</button>
-    </form>
-    <p id="msg"></p>
-  </section>
-  <section>
-    <h2>Agenda do dia</h2>
-    <label>Data <input id="data-agenda" type="date" /></label>
-    <button type="button" id="btn-agenda">Carregar</button>
-    <table>
-      <thead><tr><th>Sala</th><th>Título</th><th>Início</th><th>Fim</th><th>Status</th></tr></thead>
-      <tbody id="agenda-body"></tbody>
-    </table>
-  </section>
-  <script>
-    const msg = document.getElementById('msg');
-    function clearChildren(el) {
-      while (el.firstChild) el.removeChild(el.firstChild);
-    }
-    function appendCell(tr, text) {
-      const td = document.createElement('td');
-      td.textContent = text == null ? '' : String(text);
-      tr.appendChild(td);
-    }
-    async function loadSalas() {
-      const salas = await fetch('/api/salas').then(r => r.json());
-      const sel = document.getElementById('sala_id');
-      clearChildren(sel);
-      for (const s of salas) {
-        const opt = document.createElement('option');
-        opt.value = String(s.id);
-        opt.textContent = `${s.nome} (${s.local})`;
-        sel.appendChild(opt);
-      }
-    }
-    function toIsoLocal(val) {
-      return new Date(val).toISOString().slice(0, 19);
-    }
-    document.getElementById('form-reserva').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const body = {
-        sala_id: Number(document.getElementById('sala_id').value),
-        titulo: document.getElementById('titulo').value,
-        responsavel_nome: document.getElementById('responsavel_nome').value,
-        responsavel_email: document.getElementById('responsavel_email').value,
-        participantes: Number(document.getElementById('participantes').value),
-        inicio: toIsoLocal(document.getElementById('inicio').value),
-        fim: toIsoLocal(document.getElementById('fim').value),
-      };
-      const res = await fetch('/api/reservas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-      const data = await res.json();
-      msg.textContent = res.ok ? 'Reserva criada: ' + data.status : (data.detail || 'Erro');
-    });
-    document.getElementById('btn-agenda').addEventListener('click', async () => {
-      const data = document.getElementById('data-agenda').value;
-      const [reservas, salas] = await Promise.all([
-        fetch('/api/reservas?data=' + data).then(r => r.json()),
-        fetch('/api/salas').then(r => r.json()),
-      ]);
-      const byId = Object.fromEntries(salas.map(s => [s.id, s.nome]));
-      const tbody = document.getElementById('agenda-body');
-      clearChildren(tbody);
-      for (const r of reservas) {
-        const tr = document.createElement('tr');
-        appendCell(tr, byId[r.sala_id] || r.sala_id);
-        appendCell(tr, r.titulo);
-        appendCell(tr, r.inicio);
-        appendCell(tr, r.fim);
-        appendCell(tr, r.status);
-        tbody.appendChild(tr);
-      }
-    });
-    loadSalas();
-    document.getElementById('data-agenda').valueAsDate = new Date();
-  </script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ponto Fiel · Controle de horas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Source+Serif+4:opsz,wght@8..60,600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="hero">
+        <h1>Ponto Fiel</h1>
+        <p>
+          Registre horas por projeto com cronômetro ou lançamento manual — totais
+          confiáveis e exportação CSV sem planilha disputada.
+        </p>
+      </header>
+
+      <div class="grid grid-2">
+        <section class="panel" aria-labelledby="crono-title">
+          <h2 id="crono-title">Cronômetro</h2>
+          <p class="lead">Inicia um lançamento EM_ANDAMENTO; pare quando terminar.</p>
+          <form id="form-cronometro">
+            <label>
+              Projeto
+              <select id="crono-projeto" name="projeto_id" required></select>
+            </label>
+            <div class="row row-2">
+              <label>
+                Nome
+                <input id="crono-nome" name="colaborador_nome" required autocomplete="name" />
+              </label>
+              <label>
+                E-mail
+                <input
+                  id="crono-email"
+                  name="colaborador_email"
+                  type="email"
+                  required
+                  autocomplete="email"
+                />
+              </label>
+            </div>
+            <label>
+              Descrição
+              <input id="crono-desc" name="descricao" required />
+            </label>
+            <div class="actions">
+              <button type="submit" id="btn-iniciar">Iniciar</button>
+              <button type="button" class="accent" id="btn-parar">Parar</button>
+            </div>
+            <div class="status-bar" id="crono-status" role="status" aria-live="polite"></div>
+          </form>
+        </section>
+
+        <section class="panel" aria-labelledby="manual-title">
+          <h2 id="manual-title">Lançamento manual</h2>
+          <p class="lead">Registre um bloco já finalizado (mínimo 1 minuto).</p>
+          <form id="form-manual">
+            <label>
+              Projeto
+              <select id="manual-projeto" name="projeto_id" required></select>
+            </label>
+            <div class="row row-2">
+              <label>
+                Nome
+                <input id="manual-nome" name="colaborador_nome" required />
+              </label>
+              <label>
+                E-mail
+                <input id="manual-email" name="colaborador_email" type="email" required />
+              </label>
+            </div>
+            <label>
+              Descrição
+              <input id="manual-desc" name="descricao" required />
+            </label>
+            <div class="row row-2">
+              <label>
+                Início
+                <input id="manual-inicio" name="inicio" type="datetime-local" required />
+              </label>
+              <label>
+                Fim
+                <input id="manual-fim" name="fim" type="datetime-local" required />
+              </label>
+            </div>
+            <div class="actions">
+              <button type="submit">Salvar lançamento</button>
+            </div>
+            <div class="status-bar" id="manual-status" role="status" aria-live="polite"></div>
+          </form>
+        </section>
+      </div>
+
+      <section class="panel" style="margin-top: 24px" aria-labelledby="lista-title">
+        <h2 id="lista-title">Lista do dia</h2>
+        <p class="lead">Lançamentos do e-mail com início na data de hoje.</p>
+        <div class="toolbar">
+          <label>
+            E-mail para filtrar
+            <input id="lista-email" type="email" placeholder="voce@empresa.com" />
+          </label>
+          <button type="button" class="secondary" id="btn-atualizar">Atualizar lista</button>
+          <button type="button" id="btn-csv">Exportar CSV do mês</button>
+        </div>
+        <div class="status-bar" id="lista-status" role="status" aria-live="polite"></div>
+        <div id="lista-container"></div>
+      </section>
+    </div>
+    <script src="/static/app.js"></script>
+  </body>
 </html>
