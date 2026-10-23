@@ -51,7 +51,7 @@ Modelo de dados, API REST, regras de negócio testáveis, UI, plano de testes po
 
 **Stack padrão** (se o pedido não fixar): Python 3.11+, FastAPI, SQLite, pytest, HTML em `gerado/static/`. Use `pysqlite3-binary` se `sqlite3` não existir no Python local.
 
-**UI:** não use `innerHTML` com dados da API; prefira `textContent` / DOM API.
+**UI:** não use `innerHTML` com dados da API; prefira `textContent` / DOM API. Siga também `skills/interface-agradavel/SKILL.md` (antislop, tipografia, paleta, estados vazios/erro).
 
 ### 04 · Revisão
 

@@ -44,7 +44,11 @@
     }
   },
   "bonus": {
-    "skill": "skills/revisao-seguranca/SKILL.md",
+    "seguranca": "skills/revisao-seguranca/SKILL.md",
     "relatorio": "gerado/docs/security-audit/relatorio-auditoria-seguranca.md"
+  },
+  "ui": {
+    "skill": "skills/interface-agradavel/SKILL.md",
+    "quando": "etapa 03 construção — antes de dar a UI por pronta"
   }
 }

@@ -15,6 +15,7 @@ Dupla reserva de salas em planilha compartilhada — precisamos de um fluxo repe
 - **Checklist apresentação:** [`evidencias/checklist-apresentacao.md`](evidencias/checklist-apresentacao.md).
 - **Entrega base confirmada:** [`evidencias/entrega-base-confirmada.md`](evidencias/entrega-base-confirmada.md) (testes verdes antes do bônus).
 - **Bônus · segurança:** skill [`skills/revisao-seguranca/`](skills/revisao-seguranca/) + [`evidencias/auditoria-seguranca-resumo.md`](evidencias/auditoria-seguranca-resumo.md).
+- **UI · antislop:** skill [`skills/interface-agradavel/`](skills/interface-agradavel/) — interface agradável na construção (evita visual genérico de IA).
 
 ## 03 · Como reproduzir
 

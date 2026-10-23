@@ -51,6 +51,7 @@ Criar `gerado/docs/SPEC.md` com:
 Implementar em `gerado/`:
 
 - API REST + UI web simples + banco local (SQLite ou equivalente)
+- **UI:** aplicar skill `interface-agradavel` (layout bonito, antislop, acessível) em `gerado/static/`
 - Seed/dados iniciais pedidos no enunciado
 - README curto em `gerado/README.md` (como instalar e rodar)
 - Testes automatizados cobrindo os critérios de aceite (um teste por CA-xx quando existirem)

@@ -38,3 +38,4 @@ Outra pessoa deve conseguir:
 
 - Regra de negócio nova → atualizar `skills/fabrique-sistema/SKILL.md` **e** `prompts/INSTRUCOES-UNIVERSAIS.md` (ou regerar PROMPT-COMPLETO).
 - Bônus segurança → `skills/revisao-seguranca/SKILL.md` (opcional após etapa 04).
+- UI agradável / antislop → `skills/interface-agradavel/SKILL.md` (etapa 03, junto com a construção).
