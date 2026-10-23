@@ -22,9 +22,11 @@ Dupla reserva de salas em planilha compartilhada — precisamos de um fluxo repe
 
 Repositório alvo: `ideen-tech/hackathon-2026-d2-[seu-usuário]`.
 
-### 2. Instalar a skill
+### 2. Instalar a skill (Cursor) ou instruções universais (outros)
 
-A skill já está em `.cursor/skills/fabrique-sistema/`. Em outro agente, copie `skills/fabrique-sistema` para `.cursor/skills/`.
+- **Cursor:** skill em `.cursor/skills/fabrique-sistema/` (ou copie `skills/fabrique-sistema` para `.cursor/skills/`).
+- **ChatGPT / Claude / Gemini / Copilot / chat genérico:** [`skills/PORTABILIDADE.md`](skills/PORTABILIDADE.md) e [`prompts/INSTRUCOES-UNIVERSAIS.md`](prompts/INSTRUCOES-UNIVERSAIS.md).  
+  Um único bloco para colar: gere com `./scripts/montar-prompt.sh` → [`prompts/PROMPT-COMPLETO.md`](prompts/PROMPT-COMPLETO.md).
 
 ### 3. Rodar a fábrica (prompt da banca)
 

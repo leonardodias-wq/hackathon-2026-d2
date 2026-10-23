@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "descricao": "Mapa de como carregar a fábrica em cada ambiente. Fonte da verdade das regras: skills/fabrique-sistema/SKILL.md",
+  "pedido": {
+    "prioridade": ["PEDIDO.md", "PEDIDO-TREINO.md", "texto_do_usuario"]
+  },
+  "agentes": {
+    "cursor": {
+      "tipo": "skill",
+      "caminho": ".cursor/skills/fabrique-sistema",
+      "invocacao": "/fabrique-sistema ou @fabrique-sistema",
+      "regras_projeto": ".cursor/rules/erros-ia.mdc"
+    },
+    "chatgpt": {
+      "tipo": "project_instructions",
+      "arquivo": "prompts/INSTRUCOES-UNIVERSAIS.md",
+      "anexar_repo": true,
+      "primeira_mensagem": "prompts/mensagem-usuario-iniciar.txt",
+      "nota": "Use GPT com Code Interpreter / workspace com arquivos se precisar rodar pytest."
+    },
+    "claude": {
+      "tipo": "project_knowledge",
+      "arquivos": [
+        "prompts/INSTRUCOES-UNIVERSAIS.md",
+        "skills/fabrique-sistema/SKILL.md",
+        "PEDIDO-TREINO.md"
+      ],
+      "primeira_mensagem": "prompts/mensagem-usuario-iniciar.txt"
+    },
+    "gemini": {
+      "tipo": "system_context",
+      "arquivo": "prompts/INSTRUCOES-UNIVERSAIS.md",
+      "primeira_mensagem": "prompts/mensagem-usuario-iniciar.txt"
+    },
+    "github_copilot": {
+      "tipo": "chat_context",
+      "arquivo": "prompts/INSTRUCOES-UNIVERSAIS.md",
+      "workspace": "abrir pasta do repositório no VS Code / Cursor"
+    },
+    "generico": {
+      "tipo": "colar_no_chat",
+      "arquivo": "prompts/PROMPT-COMPLETO.md",
+      "gerado_por": "scripts/montar-prompt.sh"
+    }
+  },
+  "bonus": {
+    "skill": "skills/revisao-seguranca/SKILL.md",
+    "relatorio": "gerado/docs/security-audit/relatorio-auditoria-seguranca.md"
+  }
+}

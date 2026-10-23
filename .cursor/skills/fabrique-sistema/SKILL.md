@@ -11,6 +11,8 @@ description: >-
 
 Leva um pedido em linguagem natural até um sistema funcionando em `gerado/`, com o mínimo de ajuste manual.
 
+**Outros agentes (ChatGPT, Claude, Gemini, etc.):** ver [`skills/PORTABILIDADE.md`](../PORTABILIDADE.md) e [`prompts/INSTRUCOES-UNIVERSAIS.md`](../../prompts/INSTRUCOES-UNIVERSAIS.md).
+
 ## Entrada
 
 1. **Detectar pedido:** se existir `PEDIDO.md` na raiz, usar só ele; senão `PEDIDO-TREINO.md`; senão texto colado pelo usuário.
