@@ -1,0 +1,9 @@
+.venv
+_deps
+.pytest_cache
+__pycache__
+*.pyc
+*.db
+docs
+README.md
+run-tests.sh

@@ -4,9 +4,28 @@ API REST + UI simples para reserva de salas (pedido de treino).
 
 ## Pré-requisitos
 
-- Python 3.11+
+- Python 3.11+ **ou** Docker com Compose v2
 
-## Instalar e testar
+## Opção Docker (alternativa)
+
+Requer [Docker](https://docs.docker.com/get-docker/) e `docker compose`.
+
+```bash
+cd gerado
+
+# Subir API + UI em http://127.0.0.1:8000
+docker compose up --build app
+
+# Rodar testes de aceite (container isolado, banco em /tmp)
+docker compose run --rm tests
+
+# Parar app
+docker compose down
+```
+
+Dados do app em execução ficam no volume `app_data` (`RESERVAS_DB=/data/reservas.db`).
+
+## Instalar e testar (local)
 
 ```bash
 cd gerado

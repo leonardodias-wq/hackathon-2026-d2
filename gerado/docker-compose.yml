@@ -1,0 +1,18 @@
+services:
+  app:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      RESERVAS_DB: /data/reservas.db
+    volumes:
+      - app_data:/data
+
+  tests:
+    build: .
+    environment:
+      RESERVAS_DB: /tmp/reservas-test.db
+    command: ["pytest", "-q"]
+
+volumes:
+  app_data:

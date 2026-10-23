@@ -55,6 +55,8 @@ uvicorn app.main:app --host 127.0.0.1 --port 8000
 
 Detalhes: [`gerado/README.md`](gerado/README.md).
 
+**Opção Docker (opcional):** na pasta `gerado/`, `docker compose up --build app` e `docker compose run --rm tests`.
+
 ## 04 · Evidências
 
 | Item | Arquivo |
