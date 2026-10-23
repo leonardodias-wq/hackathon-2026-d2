@@ -78,12 +78,21 @@ document.getElementById('agenda-body').innerHTML = reservas.map(r =>
 - **1 Banco sem tranca:** sem conceito de inquilino/usuário autenticado.
 - **2 Permissão no navegador:** sem UI por papel.
 
+## Revalidação 2026-10-23 (segredos + código)
+
+| Categoria | Resultado |
+|---|---|
+| 4 · Chaves expostas no git | **OK** — varredura em `evidencias/varredura-segredos-git.md`; nenhum token/chave no histórico |
+| 5 · XSS UI | **OK** — `static/index.html` sem `innerHTML` em dados da API |
+| 3 · IDOR cancelamento | **Baixo / documentado** — PRD sem login |
+| Docker (`Dockerfile`, `compose`) | **OK** — sem credenciais; porta `127.0.0.1:8000` |
+
 ## Recomendações
 
 | Prioridade | Ação |
 |---|---|
-| P1 | Substituir `innerHTML` na agenda por `textContent` / `createElement` ou sanitizar (DOMPurify) |
-| P2 | Documentar que cancelamento por ID é público; em produção exigir auth + checagem de posse |
+| P1 | ~~innerHTML~~ **Feito** |
+| P2 | Documentar que cancelamento por ID é público; em produção exigir auth + checagem de posse (**feito** em `gerado/README.md`) |
 | P3 | Rate limiting / CORS restrito se exposto além de localhost |
 
 ## ISSUES PARA O GITHUB

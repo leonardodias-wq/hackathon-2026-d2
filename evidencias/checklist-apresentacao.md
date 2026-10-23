@@ -19,7 +19,7 @@ Gate final antes do envio (segunda 09h). Marque cada item.
 | # | Regra | Verificação |
 |---|---|---|
 | P1 | Sem dados reais de cliente/colaborador | Revisão manual |
-| P2 | Sem segredos/tokens reais | Scan / `.gitignore` |
+| P2 | Sem segredos/tokens reais | [`varredura-segredos-git.md`](varredura-segredos-git.md) + `.gitignore` |
 | P3 | Deploy não obrigatório | N/A |
 
 ## Bônus (opcional)

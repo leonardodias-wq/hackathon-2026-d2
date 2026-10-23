@@ -28,13 +28,12 @@ SEV_COLORS = {
 }
 
 FINDINGS = [
-    ("Média", "static/index.html:72-74", "XSS via innerHTML na agenda (título da reserva)"),
-    ("Baixa", "app/main.py:144-163", "Cancelamento por ID sem auth"),
+    ("Baixa", "app/main.py:144-163", "Cancelamento por ID sem auth (documentado)"),
     ("Informativa", "app/main.py", "API aberta (PRD sem login)"),
     ("Informativa", "app/main.py:64-76", "POST /api/salas sem restrição"),
 ]
 
-COUNTS = {"Crítica": 0, "Alta": 0, "Média": 1, "Baixa": 1, "Informativa": 2}
+COUNTS = {"Crítica": 0, "Alta": 0, "Média": 0, "Baixa": 1, "Informativa": 2}
 
 
 def header_footer(canvas, doc):
@@ -91,9 +90,9 @@ def main() -> None:
     )
     story.append(Spacer(1, 0.4 * cm))
 
-    story.append(Paragraph("Recomendações P1", styles["h2"]))
+    story.append(Paragraph("Revalidação segredos Git (2026-10-23)", styles["h2"]))
     story.append(
-        Paragraph("Eliminar innerHTML na agenda ou sanitizar entradas da API na UI.", styles["Normal"])
+        Paragraph("Nenhum token ou chave privada no histórico; ver evidencias/varredura-segredos-git.md.", styles["Normal"])
     )
 
     doc = SimpleDocTemplate(
