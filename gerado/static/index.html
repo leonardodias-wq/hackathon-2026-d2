@@ -39,10 +39,24 @@
   </section>
   <script>
     const msg = document.getElementById('msg');
+    function clearChildren(el) {
+      while (el.firstChild) el.removeChild(el.firstChild);
+    }
+    function appendCell(tr, text) {
+      const td = document.createElement('td');
+      td.textContent = text == null ? '' : String(text);
+      tr.appendChild(td);
+    }
     async function loadSalas() {
       const salas = await fetch('/api/salas').then(r => r.json());
       const sel = document.getElementById('sala_id');
-      sel.innerHTML = salas.map(s => `<option value="${s.id}">${s.nome} (${s.local})</option>`).join('');
+      clearChildren(sel);
+      for (const s of salas) {
+        const opt = document.createElement('option');
+        opt.value = String(s.id);
+        opt.textContent = `${s.nome} (${s.local})`;
+        sel.appendChild(opt);
+      }
     }
     function toIsoLocal(val) {
       return new Date(val).toISOString().slice(0, 19);
@@ -69,9 +83,17 @@
         fetch('/api/salas').then(r => r.json()),
       ]);
       const byId = Object.fromEntries(salas.map(s => [s.id, s.nome]));
-      document.getElementById('agenda-body').innerHTML = reservas.map(r =>
-        `<tr><td>${byId[r.sala_id] || r.sala_id}</td><td>${r.titulo}</td><td>${r.inicio}</td><td>${r.fim}</td><td>${r.status}</td></tr>`
-      ).join('');
+      const tbody = document.getElementById('agenda-body');
+      clearChildren(tbody);
+      for (const r of reservas) {
+        const tr = document.createElement('tr');
+        appendCell(tr, byId[r.sala_id] || r.sala_id);
+        appendCell(tr, r.titulo);
+        appendCell(tr, r.inicio);
+        appendCell(tr, r.fim);
+        appendCell(tr, r.status);
+        tbody.appendChild(tr);
+      }
     });
     loadSalas();
     document.getElementById('data-agenda').valueAsDate = new Date();

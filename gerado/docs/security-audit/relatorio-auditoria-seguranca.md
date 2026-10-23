@@ -10,11 +10,19 @@
 |---|---|
 | Crítica | 0 |
 | Alta | 0 |
-| Média | 1 |
+| Média | 0 (1 corrigida) |
 | Baixa | 1 |
 | Informativa | 2 |
 
-**Riscos centrais:** API totalmente aberta (esperado pelo PRD); possível XSS refletido/armazenado na agenda via campos de reserva renderizados com `innerHTML`.
+**Riscos centrais:** API totalmente aberta (esperado pelo PRD). ~~XSS na agenda~~ **corrigido** (2026-10-23): `gerado/static/index.html` passou a usar DOM API + `textContent`.
+
+## Correções aplicadas (pós-auditoria)
+
+| Achado | Status | Correção |
+|---|---|---|
+| XSS agenda (`innerHTML`) | **Corrigido** | `index.html`: `createElement` + `textContent` na agenda e no `<select>` de salas |
+| Cancelamento por ID sem auth | **Documentado** | `gerado/README.md` § Segurança; exige auth em produção (fora do PRD) |
+| API aberta / POST salas livre | **Aceito** | Escopo do pedido de treino |
 
 ## Mapeamento stack → categorias
 
@@ -41,7 +49,7 @@
 
 | Sev. | Arquivo:linha | Descrição |
 |---|---|---|
-| **Média** | `gerado/static/index.html:63` | `msg.textContent = ... + data.status` — OK para mensagem; porém linhas 72–74 usam `innerHTML` com `r.titulo`, `r.inicio`, `r.status` vindos da API. Título controlado pelo usuário (ex. `<img onerror=...>`) pode executar script no browser do operador. |
+| ~~**Média**~~ | `gerado/static/index.html` | ~~`innerHTML` na agenda~~ **Corrigido:** renderização segura com DOM API (ver seção Correções aplicadas). |
 
 **Trecho (72–74):**
 

@@ -69,5 +69,6 @@ Detalhes: [`gerado/README.md`](gerado/README.md).
 
 - **E-001:** Python sem `_sqlite3` quebrou testes → `pysqlite3-binary` + import em `database.py`.
 - **E-002:** DB de teste não isolado / path cacheado → `db_path()` dinâmico + `conftest` com `init_db`.
+- **E-003:** XSS na agenda (`innerHTML`) → DOM API + `textContent` após auditoria.
 
 Detalhes em [`evidencias/erros-ia.md`](evidencias/erros-ia.md).

@@ -35,3 +35,9 @@ Abra http://127.0.0.1:8000/ para a interface web.
 - `GET /api/relatorios/ocupacao?data=YYYY-MM-DD`
 
 Banco SQLite: `gerado/reservas.db` (variável `RESERVAS_DB` para sobrescrever).
+
+## Segurança (escopo do PRD)
+
+- **Sem login:** qualquer cliente na rede pode ler/criar/cancelar reservas se conhecer a URL e o `id` (limitação conhecida; ver auditoria em `docs/security-audit/`).
+- **UI:** agenda renderizada com `textContent` / DOM API (sem `innerHTML` em dados da API) — mitiga XSS em títulos de reserva.
+- **Produção:** exigir autenticação, autorização por responsável e rate limiting antes de expor publicamente.
