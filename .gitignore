@@ -1,0 +1,21 @@
+.venv-pdf/
+.venv/
+gerado/.venv/
+gerado/_deps/
+gerado/reservas.db
+gerado/docs/security-audit/_audit_deps/
+gerado/docs/security-audit/.venv-audit/
+__pycache__/
+*.pyc
+.node_modules/
+node_modules/
+.DS_Store
+*.db
+.env
+.env.*
+
+# Artefatos locais / pesados (não obrigatórios na entrega)
+hackathon-2026-d2-kit.zip
+gerado/.pytest_cache/
+*.pdf
+!gerado/docs/security-audit/relatorio-auditoria-seguranca.pdf

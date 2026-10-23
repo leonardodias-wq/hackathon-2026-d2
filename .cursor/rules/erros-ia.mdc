@@ -1,0 +1,49 @@
+---
+description: Registrar imediatamente erros da IA em evidencias e no README
+alwaysApply: true
+---
+
+# Log de erros da IA
+
+Este repositório é do Hackathon Ideen 2026 · Desafio 2. A banca avalia honestidade sobre onde a IA errou.
+
+## Quando registrar
+
+Sempre que for identificado um erro cometido pela IA (agente), **no mesmo turno**, antes ou junto da correção:
+
+- requisito interpretado errado
+- regra de negócio implementada incorretamente
+- teste falhando por bug introduzido pela IA
+- arquivo/caminho errado, alucinação de API ou lib
+- ajuste manual necessário no código em `gerado/`
+- qualquer correção pedida pelo usuário que exponha falha anterior da IA
+
+Não registrar preferências de estilo irrelevantes. Registrar falhas de comportamento, escopo ou corretude.
+
+## Onde registrar (os dois)
+
+1. **Log detalhado** — anexar ao final de `evidencias/erros-ia.md`
+2. **Resumo no README** — atualizar a seção `## 05 · Onde a IA errou` em `README.md` (lista curta; o detalhe fica no log)
+
+## Formato do log (`evidencias/erros-ia.md`)
+
+```markdown
+### E-NNN · YYYY-MM-DD HH:MM
+- **Etapa:** concepção | especificação | construção | revisão | outro
+- **Sintoma:** o que aconteceu / o que quebrou
+- **Causa:** por que a IA errou (hipótese honesta)
+- **Correção:** o que foi feito (código, skill, prompt)
+- **Melhoria no processo:** o que mudou na skill/regra para não repetir (ou "pendente")
+```
+
+Usar numeração sequencial (`E-001`, `E-002`, …). Não apagar entradas antigas.
+
+## Formato no README
+
+Na seção 05, manter bullets curtos no formato:
+
+`- **E-NNN:** [sintoma em 1 linha] → [correção em 1 linha]`
+
+## Skill
+
+Se o erro for recorrente ou de processo, atualizar também `skills/fabrique-sistema/SKILL.md` (e o espelho em `.cursor/skills/` se existir).
