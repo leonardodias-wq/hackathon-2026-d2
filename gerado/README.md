@@ -1,11 +1,11 @@
-# Ponto Fiel · Controle de horas
+# Reserva de Salas
 
-Sistema local: projetos, lançamentos manuais, cronômetro, relatório e CSV.
+Sistema local de reserva de salas (São Paulo, Araraquara, coworking) sem conflito de horário.
 
 ## Requisitos
 
-- Python 3.11+ (ou 3.12+)
-- Dependências em `requirements.txt` (inclui `pysqlite3-binary` se o Python local não tiver `_sqlite3`)
+- Python 3.11+ (testado também em 3.14 com `pysqlite3-binary`)
+- Dependências em `requirements.txt`
 
 ## Instalar e testar
 
@@ -17,27 +17,26 @@ pip install -r requirements.txt
 pytest -q
 ```
 
-Os testes usam banco isolado via variável `HORAS_DB` (fixture por teste).
-
-## Rodar a API + UI
+## Rodar o servidor
 
 ```bash
 cd gerado
-uvicorn app.main:app --host 127.0.0.1 --port 8000
+source .venv/bin/activate
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-Abra http://127.0.0.1:8000/
+Abra http://127.0.0.1:8000 — formulário de reserva e agenda do dia.
+
+Banco padrão: `reservas.db` (override com `RESERVAS_DB=/caminho/arquivo.db`).
 
 ## Docker (opcional)
 
 ```bash
-docker compose up --build app
-docker compose run --rm tests
+docker compose up --build
 ```
 
-## Segurança básica
+## Segurança
 
-- Sem login / sem segredos reais
-- Validação de entrada na API
-- SQL parametrizado
-- UI sem `innerHTML` com dados da API (`textContent` / DOM API)
+- Sem login / sem segredos.
+- SQL parametrizado.
+- UI usa `textContent` / DOM API (sem `innerHTML` com dados da API).

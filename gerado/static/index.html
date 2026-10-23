@@ -3,117 +3,106 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Ponto Fiel · Controle de horas</title>
+    <title>Reserva de Salas</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Source+Serif+4:opsz,wght@8..60,600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;600;700&family=Source+Sans+3:wght@400;600&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
   <body>
     <div class="wrap">
-      <header class="hero">
-        <h1>Ponto Fiel</h1>
-        <p>
-          Registre horas por projeto com cronômetro ou lançamento manual — totais
-          confiáveis e exportação CSV sem planilha disputada.
+      <header class="site-header">
+        <h1>Reserva de Salas</h1>
+        <p class="lede">
+          Reserve salas em São Paulo, Araraquara e coworking sem conflito de
+          horário — agenda do dia e formulário na mesma tela.
         </p>
       </header>
 
-      <div class="grid grid-2">
-        <section class="panel" aria-labelledby="crono-title">
-          <h2 id="crono-title">Cronômetro</h2>
-          <p class="lead">Inicia um lançamento EM_ANDAMENTO; pare quando terminar.</p>
-          <form id="form-cronometro">
+      <div class="layout">
+        <section aria-labelledby="form-title">
+          <h2 id="form-title">Nova reserva</h2>
+          <form id="form-reserva" class="form-grid" novalidate>
             <label>
-              Projeto
-              <select id="crono-projeto" name="projeto_id" required></select>
+              Sala
+              <select id="sala_id" name="sala_id" required></select>
             </label>
-            <div class="row row-2">
-              <label>
-                Nome
-                <input id="crono-nome" name="colaborador_nome" required autocomplete="name" />
-              </label>
-              <label>
-                E-mail
-                <input
-                  id="crono-email"
-                  name="colaborador_email"
-                  type="email"
-                  required
-                  autocomplete="email"
-                />
-              </label>
-            </div>
             <label>
-              Descrição
-              <input id="crono-desc" name="descricao" required />
+              Título
+              <input id="titulo" name="titulo" type="text" required maxlength="120" />
+            </label>
+            <label>
+              Responsável
+              <input id="responsavel_nome" name="responsavel_nome" type="text" required />
+            </label>
+            <label>
+              E-mail
+              <input
+                id="responsavel_email"
+                name="responsavel_email"
+                type="email"
+                required
+              />
+            </label>
+            <label>
+              Participantes
+              <input
+                id="participantes"
+                name="participantes"
+                type="number"
+                min="1"
+                value="1"
+                required
+              />
+            </label>
+            <label>
+              Início
+              <input id="inicio" name="inicio" type="datetime-local" required />
+            </label>
+            <label>
+              Fim
+              <input id="fim" name="fim" type="datetime-local" required />
             </label>
             <div class="actions">
-              <button type="submit" id="btn-iniciar">Iniciar</button>
-              <button type="button" class="accent" id="btn-parar">Parar</button>
+              <button type="submit">Reservar</button>
             </div>
-            <div class="status-bar" id="crono-status" role="status" aria-live="polite"></div>
           </form>
+          <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
         </section>
 
-        <section class="panel" aria-labelledby="manual-title">
-          <h2 id="manual-title">Lançamento manual</h2>
-          <p class="lead">Registre um bloco já finalizado (mínimo 1 minuto).</p>
-          <form id="form-manual">
+        <section aria-labelledby="agenda-title">
+          <h2 id="agenda-title">Agenda do dia</h2>
+          <div class="toolbar">
             <label>
-              Projeto
-              <select id="manual-projeto" name="projeto_id" required></select>
+              Data
+              <input id="agenda-data" type="date" />
             </label>
-            <div class="row row-2">
-              <label>
-                Nome
-                <input id="manual-nome" name="colaborador_nome" required />
-              </label>
-              <label>
-                E-mail
-                <input id="manual-email" name="colaborador_email" type="email" required />
-              </label>
-            </div>
-            <label>
-              Descrição
-              <input id="manual-desc" name="descricao" required />
-            </label>
-            <div class="row row-2">
-              <label>
-                Início
-                <input id="manual-inicio" name="inicio" type="datetime-local" required />
-              </label>
-              <label>
-                Fim
-                <input id="manual-fim" name="fim" type="datetime-local" required />
-              </label>
-            </div>
-            <div class="actions">
-              <button type="submit">Salvar lançamento</button>
-            </div>
-            <div class="status-bar" id="manual-status" role="status" aria-live="polite"></div>
-          </form>
+            <button type="button" class="secondary" id="btn-atualizar">
+              Atualizar
+            </button>
+          </div>
+          <div id="agenda-empty" class="empty" hidden>
+            Nenhuma reserva neste dia.
+          </div>
+          <div class="table-wrap">
+            <table id="agenda-table" hidden>
+              <thead>
+                <tr>
+                  <th scope="col">Sala</th>
+                  <th scope="col">Horário</th>
+                  <th scope="col">Título</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody id="agenda-body"></tbody>
+            </table>
+          </div>
         </section>
       </div>
-
-      <section class="panel" style="margin-top: 24px" aria-labelledby="lista-title">
-        <h2 id="lista-title">Lista do dia</h2>
-        <p class="lead">Lançamentos do e-mail com início na data de hoje.</p>
-        <div class="toolbar">
-          <label>
-            E-mail para filtrar
-            <input id="lista-email" type="email" placeholder="voce@empresa.com" />
-          </label>
-          <button type="button" class="secondary" id="btn-atualizar">Atualizar lista</button>
-          <button type="button" id="btn-csv">Exportar CSV do mês</button>
-        </div>
-        <div class="status-bar" id="lista-status" role="status" aria-live="polite"></div>
-        <div id="lista-container"></div>
-      </section>
     </div>
-    <script src="/static/app.js"></script>
+    <script src="/static/app.js" defer></script>
   </body>
 </html>

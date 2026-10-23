@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")"
-if [[ ! -d _deps ]]; then
-  python3 -m pip install --target ./_deps -r requirements.txt
+if [[ -d .venv ]]; then
+  # shellcheck disable=SC1091
+  source .venv/bin/activate
 fi
-export PYTHONPATH="_deps:."
-python3 -m pytest -q "$@"
+pytest -q

@@ -1,6 +1,6 @@
-# UI · Ponto Fiel
+# UI — notas
 
-- **Paleta:** fundo cinza-azulado `#e8eef2`, primária verde petróleo `#1a5f4a`, acento azul `#2c4a6e`.
-- **Fontes:** Source Serif 4 (títulos) + DM Sans (corpo).
-- **Layout:** duas colunas (cronômetro | manual) + lista do dia com export CSV do mês.
-- **Segurança UI:** DOM via `createElement` / `textContent` (sem `innerHTML` com dados da API).
+- **Paleta:** fundo cinza-verde `#eef2f0`, superfície branca, primária musgo `#1a6b52`, erro `#9b2c2c`.
+- **Fontes:** DM Sans (títulos) + Source Sans 3 (corpo).
+- **Layout:** formulário à esquerda, agenda do dia à direita (≥800px); stack no mobile.
+- **Segurança:** DOM via `createElement` / `textContent` (sem `innerHTML` com dados da API).

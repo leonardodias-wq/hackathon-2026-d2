@@ -1,117 +1,100 @@
-# SPEC · Controle de horas
+# SPEC · Reserva de salas
 
 ## Modelo de dados
 
-### Projeto
-
-| Campo | Tipo | Regras |
+### salas
+| Campo | Tipo | Notas |
 |---|---|---|
 | id | INTEGER PK | autoincrement |
-| nome | TEXT | obrigatório, não vazio |
-| cliente | TEXT | obrigatório, não vazio |
-| cor | TEXT | `#RRGGBB` (hex 6 dígitos) |
+| nome | TEXT | obrigatório |
+| local | TEXT | `SAO_PAULO` \| `ARARAQUARA` \| `COWORKING` |
+| capacidade | INTEGER | > 0 |
+| recursos | TEXT | JSON array de `TV` \| `VIDEOCONFERENCIA` \| `QUADRO` |
 
-### Lançamento
-
-| Campo | Tipo | Regras |
+### reservas
+| Campo | Tipo | Notas |
 |---|---|---|
 | id | INTEGER PK | autoincrement |
-| projeto_id | INTEGER FK | projeto existente |
-| colaborador_nome | TEXT | obrigatório |
-| colaborador_email | TEXT | obrigatório; comparação case-insensitive |
-| descricao | TEXT | obrigatório |
-| inicio | TEXT ISO | datetime; não no futuro na criação |
-| fim | TEXT ISO \| NULL | NULL se `EM_ANDAMENTO` |
-| status | TEXT | `FINALIZADO` \| `EM_ANDAMENTO` |
+| sala_id | INTEGER FK | → salas.id |
+| responsavel_nome | TEXT | obrigatório |
+| responsavel_email | TEXT | obrigatório |
+| titulo | TEXT | obrigatório |
+| participantes | INTEGER | ≥ 1 |
+| inicio | TEXT | ISO datetime |
+| fim | TEXT | ISO datetime |
+| status | TEXT | `ATIVA` \| `CANCELADA` |
 
-### Invariantes
+**Invariantes:** `inicio < fim`; duração ∈ [15 min, 4 h]; participantes ≤ capacidade da sala; sem sobreposição entre `ATIVA` da mesma sala.
 
-1. `FINALIZADO` ⇒ `fim` preenchido e `fim > inicio`; duração ≥ 1 minuto.
-2. `EM_ANDAMENTO` ⇒ `fim` NULL; no máximo um por e-mail (normalizado lower).
-3. Sobreposição de dois `FINALIZADO` do mesmo e-mail: `inicio_a < fim_b AND inicio_b < fim_a`. Encostar (`fim_a == inicio_b`) **não** é sobreposição.
-4. Só `EM_ANDAMENTO` pode ser excluído.
-5. Edição só de `FINALIZADO` (descrição, projeto, início, fim); revalida duração e sobreposição (excluindo o próprio id).
+## Seed (6 salas)
 
-## Endpoints
-
-### Projetos
-
-| Método | Path | Body / query | Resposta |
+| Nome | Local | Cap. | Recursos |
 |---|---|---|---|
-| GET | `/api/projetos` | — | lista de projetos |
-| POST | `/api/projetos` | `{nome, cliente, cor}` | 201 projeto |
+| SP Sala A | SAO_PAULO | 8 | TV, VIDEOCONFERENCIA |
+| SP Sala B | SAO_PAULO | 4 | QUADRO |
+| AQ Sala A | ARARAQUARA | 10 | TV, QUADRO |
+| AQ Sala B | ARARAQUARA | 6 | VIDEOCONFERENCIA |
+| CW Sala A | COWORKING | 12 | TV, VIDEOCONFERENCIA, QUADRO |
+| CW Sala B | COWORKING | 2 | — |
 
-Erros: 400 cor inválida / campos vazios.
+## API REST
 
-### Lançamentos
+### GET /api/salas
+Lista salas. 200 → `[{id, nome, local, capacidade, recursos}]`
 
-| Método | Path | Body / query | Resposta |
-|---|---|---|---|
-| GET | `/api/lancamentos` | `email`, `data_inicio`, `data_fim` (obrigatórios) | lista no intervalo (por início) |
-| POST | `/api/lancamentos` | projeto_id, colaborador_*, descricao, inicio, fim | 201 `FINALIZADO` |
-| PATCH | `/api/lancamentos/{id}` | campos editáveis | lançamento atualizado |
-| DELETE | `/api/lancamentos/{id}` | — | 204 se `EM_ANDAMENTO` |
+### POST /api/salas
+Body: `{nome, local, capacidade, recursos[]}`. 201 → sala. 400 se enum/capacidade inválidos.
 
-Erros: 400 validação; 404 não encontrado; 409 conflito de sobreposição ou já em andamento.
+### GET /api/reservas?data=YYYY-MM-DD&sala_id=
+Lista reservas (opcional filtro). 200 → lista.
 
-### Cronômetro
+### POST /api/reservas
+Body: `{sala_id, responsavel_nome, responsavel_email, titulo, participantes, inicio, fim}`.  
+201 → reserva `ATIVA`.  
+400 duração/passado/capacidade/validação.  
+404 sala inexistente.  
+409 conflito de horário.
 
-| Método | Path | Body | Resposta |
-|---|---|---|---|
-| POST | `/api/cronometro/iniciar` | projeto_id, colaborador_*, descricao | 201 `EM_ANDAMENTO`, inicio=agora |
-| POST | `/api/cronometro/parar` | email | 200 `FINALIZADO`, fim=agora |
+### POST /api/reservas/{id}/cancelar
+200 → reserva `CANCELADA`.  
+400 se já cancelada ou já passou (`fim <= agora`).  
+404 se não existe.
 
-Erros: 409 se já há em andamento (iniciar) ou nenhum (parar); 400 duração &lt; 1 min ao parar.
+### GET /api/salas/livres?inicio=&fim=&local=&capacidade_min=
+Salas sem reserva `ATIVA` sobreposta no intervalo; filtros opcionais. 200 → salas. 400 se intervalo inválido.
 
-### Relatório e CSV
+### GET /api/relatorios/ocupacao?data=YYYY-MM-DD
+Por sala: minutos ativos no intervalo [8h, 18h] ∩ reserva, taxa = minutos / 600. Canceladas ignoradas. 200 → `[{sala_id, nome, minutos_ocupados, taxa_ocupacao}]`.
 
-| Método | Path | Query | Resposta |
-|---|---|---|---|
-| GET | `/api/relatorio` | `data_inicio`, `data_fim` | `{ por_projeto, por_colaborador }` só FINALIZADO |
-| GET | `/api/relatorio/csv` | `data_inicio`, `data_fim` | `text/csv` |
+## Regras de negócio
 
-Colunas CSV: `projeto,cliente,colaborador,email,descricao,inicio,fim,duracao_minutos,status`.
+1. **Sobreposição:** `inicio_a < fim_b AND inicio_b < fim_a` entre ATIVAs da mesma sala → 409.
+2. **Encostar:** `fim_a == inicio_b` permitido.
+3. **Duração:** `(fim - inicio)` ∈ [15, 240] minutos; fora → 400.
+4. **Passado:** `inicio < agora` → 400.
+5. **Capacidade:** `participantes > sala.capacidade` → 400.
+6. **Cancelar futura:** só se `status=ATIVA` e `fim > agora`; libera horário.
+7. **Cancelar passada:** `fim <= agora` → 400.
+8. **Ocupação:** só ATIVA; clip em [08:00, 18:00] do dia; taxa = minutos_clip / 600.
 
-Intervalo inclusivo por data do `inicio` (date part).
+## UI (`static/`)
 
-### UI
-
-| Método | Path | — |
-|---|---|---|
-| GET | `/` | `static/index.html` |
-| GET | `/static/*` | assets |
-
-## Regras de negócio testáveis
-
-- R1: duração_minutos = floor((fim - inicio).total_seconds() / 60) ≥ 1
-- R2: fim ≤ inicio ⇒ 400
-- R3: início no futuro ⇒ 400
-- R4: overlap FINALIZADO mesmo e-mail ⇒ 409
-- R5: encostar permitido
-- R6: um EM_ANDAMENTO por e-mail
-- R7: parar define fim=agora e FINALIZADO
-- R8: relatório/CSV ignoram EM_ANDAMENTO
-- R9: DELETE só EM_ANDAMENTO; após delete, iniciar funciona
-
-## Telas / fluxos UI
-
-1. **Topo:** nome do sistema + frase de contexto.
-2. **Cronômetro:** projeto, nome, e-mail, descrição → Iniciar / Parar.
-3. **Lançamento manual:** mesmos campos + início/fim → Salvar.
-4. **Lista do dia:** lançamentos do e-mail informado com início na data de hoje.
-5. **Exportar:** botão CSV do mês corrente (`data_inicio` = 1º dia, `data_fim` = último dia).
+1. Contexto: “Reserva de salas sem conflito de horário”.
+2. Formulário “Nova reserva” + feedback sucesso/erro.
+3. Agenda do dia: tabela Sala | Horário | Título | Status (chips ATIVA/CANCELADA).
+4. Sem `innerHTML` com dados da API.
 
 ## Plano de verificação (CA)
 
-| CA | Como verificar |
+| CA | Teste |
 |---|---|
-| CA-01 | POST lançamento 1h → 201, status, duração 60 |
-| CA-02 | fim ≤ início → 4xx |
-| CA-03 | segundo overlapping → 409 + mensagem |
-| CA-04 | 10–11 e 11–12 → ambos 201 |
-| CA-05 | POST iniciar → EM_ANDAMENTO |
-| CA-06 | segundo iniciar mesmo e-mail → 409 |
-| CA-07 | POST parar → FINALIZADO com fim |
-| CA-08 | GET relatório → totais batem |
-| CA-09 | GET csv → colunas; sem EM_ANDAMENTO |
-| CA-10 | DELETE EM_ANDAMENTO → 204; iniciar de novo OK |
+| CA-01 | `test_ca01_reserva_valida` |
+| CA-02 | `test_ca02_conflito_sobreposicao` |
+| CA-03 | `test_ca03_horarios_encostados` |
+| CA-04 | `test_ca04_duracao_invalida` |
+| CA-05 | `test_ca05_inicio_passado` |
+| CA-06 | `test_ca06_capacidade` |
+| CA-07 | `test_ca07_cancelar_futura` |
+| CA-08 | `test_ca08_cancelar_passada` |
+| CA-09 | `test_ca09_salas_livres_filtro` |
+| CA-10 | `test_ca10_ocupacao_ignora_canceladas` |

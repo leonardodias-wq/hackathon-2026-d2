@@ -1,18 +1,9 @@
 services:
-  app:
+  reservas:
     build: .
     ports:
-      - "127.0.0.1:8000:8000"
-    environment:
-      HORAS_DB: /data/horas.db
+      - "8000:8000"
     volumes:
-      - app_data:/data
-
-  tests:
-    build: .
+      - ./data:/app/data
     environment:
-      HORAS_DB: /tmp/horas-test.db
-    command: ["pytest", "-q"]
-
-volumes:
-  app_data:
+      RESERVAS_DB: /app/data/reservas.db

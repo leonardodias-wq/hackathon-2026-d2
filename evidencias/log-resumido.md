@@ -2,20 +2,22 @@
 
 ```bash
 cd gerado
-python3 -m venv .venv
+python3 -m venv .venv          # já existia; reutilizado
 source .venv/bin/activate
 pip install -r requirements.txt
+python -m compileall -q app
 pytest -q
 # 10 passed
 uvicorn app.main:app --host 127.0.0.1 --port 8000
-# GET /api/projetos → 3 projetos seed
+# GET /api/salas → 6 salas seed (SP Sala A …)
+# GET / → 200 · GET /static/styles.css → 200
 ```
 
 ## Comandos úteis
 
 ```bash
 cd gerado
-source .venv/bin/activate   # ou: ./run-tests.sh
+source .venv/bin/activate
 pytest -q
 uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
@@ -24,12 +26,11 @@ uvicorn app.main:app --host 127.0.0.1 --port 8000
 
 ```bash
 cd gerado
-docker compose up --build app
-docker compose run --rm tests
-docker compose down
+docker compose up --build
 ```
 
 ## Notas
 
-- Banco de teste isolado: `HORAS_DB` (fixture por teste).
-- `pytest.ini` limita coleta a `tests/` (evita `_deps`).
+- Pedido: `PEDIDO-TREINO.md` (reserva de salas). Sistema anterior (horas) substituído.
+- Banco de teste isolado: `RESERVAS_DB` (fixture por teste).
+- `pytest.ini` limita coleta a `tests/`.

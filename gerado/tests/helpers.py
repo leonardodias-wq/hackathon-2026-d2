@@ -1,27 +1,32 @@
 from datetime import datetime, timedelta
 
-from app.database import get_connection
 
-
-def past_slot(hours_ago: float = 3, duration_hours: float = 1) -> tuple[str, str]:
-    fim = datetime.now().replace(microsecond=0) - timedelta(hours=hours_ago)
-    inicio = fim - timedelta(hours=duration_hours)
-    return inicio.isoformat(timespec="seconds"), fim.isoformat(timespec="seconds")
-
-
-def backdate_em_andamento(email: str, minutes_ago: int = 5) -> None:
-    """Ajusta início do EM_ANDAMENTO para o passado (permite parar com duração ≥ 1 min)."""
-    conn = get_connection()
-    inicio = (datetime.now().replace(microsecond=0) - timedelta(minutes=minutes_ago)).isoformat(
-        timespec="seconds"
+def future_slot(hours_ahead: int = 24, duration_minutes: int = 60):
+    """Retorna (inicio_iso, fim_iso) no futuro, alinhado à hora cheia."""
+    start = datetime.now().replace(minute=0, second=0, microsecond=0) + timedelta(
+        hours=hours_ahead
     )
-    conn.execute(
-        """
-        UPDATE lancamentos
-        SET inicio = ?
-        WHERE lower(colaborador_email) = ? AND status = 'EM_ANDAMENTO'
-        """,
-        (inicio, email.strip().lower()),
+    end = start + timedelta(minutes=duration_minutes)
+    return start.isoformat(timespec="seconds"), end.isoformat(timespec="seconds")
+
+
+def past_slot(hours_ago: int = 24, duration_minutes: int = 60):
+    end = datetime.now().replace(minute=0, second=0, microsecond=0) - timedelta(
+        hours=hours_ago
     )
-    conn.commit()
-    conn.close()
+    start = end - timedelta(minutes=duration_minutes)
+    return start.isoformat(timespec="seconds"), end.isoformat(timespec="seconds")
+
+
+def payload(sala_id: int, inicio: str, fim: str, **extra):
+    base = {
+        "sala_id": sala_id,
+        "responsavel_nome": "Ana Silva",
+        "responsavel_email": "ana@example.com",
+        "titulo": "Reunião",
+        "participantes": 2,
+        "inicio": inicio,
+        "fim": fim,
+    }
+    base.update(extra)
+    return base
