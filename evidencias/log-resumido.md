@@ -16,6 +16,15 @@ PYTHONPATH=. python3 -m pytest -q          # após deps instaladas
 uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
+## Docker (opcional, pós-entrega)
+
+```bash
+cd gerado
+docker compose up --build app
+docker compose run --rm tests
+docker compose down
+```
+
 ## Reruns
 
 - Ajuste `RESERVAS_DB` nos testes (fixture isolada por teste).
